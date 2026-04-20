@@ -1,0 +1,10 @@
+{
+  "name": "Brian May iPad Rig",
+  "short_name": "May Rig",
+  "start_url": "../brian-may-ipad-rig.html",
+  "display": "standalone",
+  "background_color": "#121212",
+  "theme_color": "#121212",
+  "description": "Rig guitare style Brian May optimisé iPad avec Web Audio.",
+  "icons": []
+}
