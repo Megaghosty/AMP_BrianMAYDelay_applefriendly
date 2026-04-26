@@ -495,15 +495,15 @@
       const curve = new Float32Array(nSamples);
       
       if (type === 'fender') {
-        // Asymmetric closer to a screamer/fender overdrive push
+        // Soft clipping très doux type ampli lampes clair/crunch
+        const driveAmount = k * 0.12; 
         for (let i = 0; i < nSamples; ++i) {
-          let x = i * 2 / nSamples - 1;
-          if (x < 0) x = -Math.pow(-x, 0.8);
-          const driveAmount = (k * 0.4);
-          curve[i] = (1 + driveAmount) * x / (1 + driveAmount * Math.abs(x));
+          const x = i * 2 / nSamples - 1;
+          // Utilisation de tanh pour un écrêtage progressif et doux
+          curve[i] = Math.tanh(x * (1 + driveAmount)) / Math.tanh(1 + driveAmount);
         }
       } else {
-        // Vox symmetrical warm clipping
+        // Vox symmetrical warm clipping (grosse Fuzz pour Brian May)
         const deg = Math.PI / 180;
         for (let i = 0; i < nSamples; ++i) {
           const x = i * 2 / nSamples - 1;
@@ -629,9 +629,22 @@
         oopGainNode.gain.value = state.oop ? 1.5 : 0;
         dryGuitarGainNode.gain.value = state.oop ? 0 : 1;
       }
-      if (trebleBooster) trebleBooster.gain.value = state.booster ? state.boost * 2 : 0;
-      if (chorusWet && chorusDry) {
-        const val = state.chorus ? state.chorusLvl / 10 : 0;
+      if (trebleBooster) {
+        if (state.ampModel === 'fender') {
+          // Emulation type Tube Screamer pour SRV (bosse dans les médiums, gain mesuré)
+          trebleBooster.type = 'peaking';
+          trebleBooster.frequency.value = 720;
+          trebleBooster.Q.value = 1.0;
+          // Le "boost" pousse moins fort que le Range Master
+          trebleBooster.gain.value = state.booster ? state.boost * 1.5 : 0;
+        } else {
+          // Emulation type Range Master pour Brian May (high shelf ultra agressif)
+          trebleBooster.type = 'highshelf';
+          trebleBooster.frequency.value = 1500;
+          trebleBooster.Q.value = 1.0;
+          trebleBooster.gain.value = state.booster ? state.boost * 2.5 : 0;
+        }
+      }
         chorusWet.gain.value = val;
         chorusDry.gain.value = state.chorus ? (1 - val) : 1;
       }
@@ -662,23 +675,11 @@
       if (cabSim) cabSim.frequency.value = isFender ? 5000 : 6000;
 
       if (driveGain && waveShaper) {
-        driveGain.gain.value = isFender ? (state.drive * 5) / 20 : (state.drive * 10) / 20;
+        // Gain réduit massivement sur Fender pour garder un son clair/crunch naturel (blues)
+        driveGain.gain.value = isFender ? (state.drive * 1.5) / 20 : (state.drive * 10) / 20;
         waveShaper.curve = makeDistortionCurve(state.drive * 10, state.ampModel);
       }
       
-      if (trebleBooster) {
-        if (isFender) {
-          // Emulation type Tube Screamer pour SRV (bosse dans les médiums)
-          trebleBooster.type = 'peaking';
-          trebleBooster.frequency.value = 720;
-          trebleBooster.Q.value = 1.0;
-        } else {
-          // Emulation type Range Master pour Brian May (high shelf)
-          trebleBooster.type = 'highshelf';
-          trebleBooster.frequency.value = 1500;
-          trebleBooster.Q.value = 1.0;
-        }
-      }
       if (masterVol) masterVol.gain.value = state.volume / 10;
       if (wahFilter && !state.wah) wahFilter.gain.value = 0;
     }
