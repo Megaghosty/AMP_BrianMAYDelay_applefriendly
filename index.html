@@ -642,6 +642,8 @@
       let maxVal = 0;
       for (let i = 0; i < gateDataArray.length; i++) {
         const diff = Math.abs(gateDataArray[i] - 128);
+        if (diff > maxVal) maxVal = diff;
+      }
       
       // Enveloppe follower pour lisser la détection (évite le "broutement" ou "chatter")
       if (maxVal > gateEnvelope) {
