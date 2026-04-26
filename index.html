@@ -10,29 +10,26 @@
   <link rel="manifest" href="./assets/manifest.webmanifest" />
   <style>
     :root {
-      --bg: #121212;
+      --bg: #0f0f11;
       --panel: #1b1b1f;
-      --panel-2: #22242a;
-      --panel-3: #2a2d35;
+      --panel-2: #24252a;
+      --panel-3: #2d2f36;
       --text: #f5f5f5;
       --muted: #b8bec9;
       --line: rgba(255,255,255,.08);
-      --accent: #d63b2f;
+      --accent: #e53935;
+      --accent-glow: rgba(229,57,53,.4);
       --accent-2: #f1c40f;
-      --green: #28b463;
+      --green: #2ecc71;
       --blue: #3498db;
-      --purple: #8e44ad;
-      --danger: #ff6b6b;
-      --radius: 18px;
-      --gap: 16px;
-      --shadow: 0 12px 30px rgba(0,0,0,.35);
+      --shadow: 0 16px 40px rgba(0,0,0,.45);
       --control-h: 56px;
     }
 
     * { box-sizing: border-box; }
     html, body { margin: 0; min-height: 100%; background: var(--bg); color: var(--text); font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-    body { padding: env(safe-area-inset-top) 14px env(safe-area-inset-bottom) 14px; }
-    button, select, input { font: inherit; }
+    body { padding: env(safe-area-inset-top) 14px env(safe-area-inset-bottom) 14px; background: radial-gradient(circle at top, #1a1a24 0%, var(--bg) 80%); }
+    button, select, input { font: inherit; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
 
     .app {
       max-width: 1280px;
@@ -47,7 +44,8 @@
       grid-template-columns: 1.4fr 1fr auto;
       gap: 12px;
       align-items: center;
-      background: linear-gradient(180deg, #1f2026, #17181c);
+      background: linear-gradient(180deg, rgba(31,32,38,0.9), rgba(23,24,28,0.95));
+      backdrop-filter: blur(12px);
       border: 1px solid var(--line);
       border-radius: 22px;
       padding: 14px;
@@ -57,7 +55,7 @@
       z-index: 5;
     }
 
-    .brand h1 { margin: 0; font-size: clamp(1.2rem, 1rem + 1vw, 2rem); color: #fff; }
+    .brand h1 { margin: 0; font-size: clamp(1.2rem, 1rem + 1vw, 2rem); color: #fff; text-shadow: 0 2px 10px rgba(255,255,255,0.1); }
     .brand p { margin: 6px 0 0; color: var(--muted); font-size: .95rem; }
 
     .start-row, .preset-row { display: flex; gap: 10px; align-items: center; }
@@ -74,12 +72,15 @@
       color: white;
       font-weight: 700;
       cursor: pointer;
-      box-shadow: 0 6px 18px rgba(214,59,47,.35);
+      box-shadow: 0 6px 20px var(--accent-glow);
     }
-    .btn.secondary { background: #2d8cff; box-shadow: 0 6px 18px rgba(45,140,255,.25); }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px var(--accent-glow); filter: brightness(1.1); }
+    .btn.secondary { background: #2d8cff; box-shadow: 0 6px 20px rgba(45,140,255,.3); }
+    .btn.secondary:hover { box-shadow: 0 8px 25px rgba(45,140,255,.4); }
     .btn.ghost { background: var(--panel-3); box-shadow: none; border: 1px solid var(--line); }
-    .btn:active { transform: scale(.985); }
-    .btn:disabled { opacity: .55; cursor: not-allowed; }
+    .btn.ghost:hover { background: #353842; transform: none; box-shadow: none; }
+    .btn:active { transform: scale(.98); }
+    .btn:disabled { opacity: .55; cursor: not-allowed; transform: none; filter: none; }
 
     select {
       width: 100%;
@@ -87,11 +88,16 @@
       color: white;
       border: 1px solid var(--line);
     }
+    select:hover, select:focus { border-color: rgba(255,255,255,0.2); outline: none; }
 
     .status {
       text-align: right;
       color: var(--muted);
       font-size: .95rem;
+      background: rgba(0,0,0,0.2);
+      padding: 8px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
     }
 
     .grid {
@@ -107,7 +113,15 @@
       border: 1px solid var(--line);
       border-radius: 22px;
       padding: 18px;
-      box-shadow: var(--shadow);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      position: relative;
+      overflow: hidden;
+    }
+    .panel::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
     }
 
     .panel h2 {
@@ -115,6 +129,18 @@
       font-size: 1.05rem;
       color: white;
       letter-spacing: .02em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .panel h2::before {
+      content: '';
+      display: block;
+      width: 4px;
+      height: 16px;
+      background: var(--accent);
+      border-radius: 4px;
+      box-shadow: 0 0 8px var(--accent-glow);
     }
 
     .section-note {
@@ -139,9 +165,15 @@
       align-items: center;
       justify-content: space-between;
       gap: 10px;
+      cursor: pointer;
+      color: left;
+      text-align: left;
     }
+    .toggle:hover { background: #282a30; border-color: rgba(255,255,255,0.15); }
+    .toggle:active { transform: scale(0.98); }
+    .toggle.active { border-color: var(--green); background: rgba(46, 204, 113, 0.05); }
 
-    .toggle strong { display: block; font-size: 1rem; }
+    .toggle strong { display: block; font-size: 1rem; color: white; }
     .toggle span { display: block; font-size: .88rem; color: var(--muted); margin-top: 4px; }
 
     .switch {
@@ -150,8 +182,9 @@
       background: #3a3d46;
       border-radius: 999px;
       position: relative;
-      border: 1px solid rgba(255,255,255,.1);
+      border: 1px inset rgba(255,255,255,.1);
       flex: 0 0 auto;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.3);
     }
     .switch::after {
       content: "";
@@ -161,10 +194,11 @@
       border-radius: 50%;
       left: 4px;
       top: 4px;
-      background: white;
-      transition: transform .18s ease;
+      background: linear-gradient(180deg, #ffffff, #e0e0e0);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+      transition: transform .2s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
-    .toggle.active .switch { background: var(--green); }
+    .toggle.active .switch { background: var(--green); box-shadow: inset 0 2px 6px rgba(0,100,0,0.5), 0 0 12px rgba(46, 204, 113, 0.3); border-color: transparent; }
     .toggle.active .switch::after { transform: translateX(31px); }
 
     .slider-card {
@@ -174,7 +208,9 @@
       padding: 14px;
       display: grid;
       gap: 10px;
+      transition: all 0.2s ease;
     }
+    .slider-card:focus-within { border-color: var(--accent); box-shadow: 0 0 15px var(--accent-glow); background: rgba(229,57,53, 0.03); }
     .slider-head {
       display: flex;
       justify-content: space-between;
@@ -182,12 +218,13 @@
       gap: 8px;
     }
     .slider-head strong { font-size: 1rem; }
-    .slider-head span { color: var(--accent-2); font-weight: 700; min-width: 60px; text-align: right; }
+    .slider-head span { color: var(--accent-2); font-weight: 700; min-width: 60px; text-align: right; text-shadow: 0 0 8px rgba(241, 196, 15, 0.4); }
 
     input[type="range"] {
       width: 100%;
       height: 36px;
       accent-color: var(--accent);
+      cursor: pointer;
     }
 
     .amp-grid, .fx-grid {
@@ -364,6 +401,7 @@
   <script>
     const factoryPresets = {
       "Guitar Chalk (Défaut)": { gate: 15, oop: false, booster: true, boost: 6, wah: false, chorus: true, chorusLvl: 2, amp: true, ampModel: 'vox', drive: 6, bass: 5, mid: 3, treble: 8, volume: 5, delay: true, delayMix: 3, delay1: 800, delay2: 1600 },
+      "Brian May Live (Raw)": { gate: 18, oop: false, booster: true, boost: 8, wah: false, chorus: false, chorusLvl: 0, amp: true, ampModel: 'vox', drive: 8, bass: 5, mid: 6, treble: 8, volume: 5, delay: false, delayMix: 0, delay1: 0, delay2: 0 },
       "Bohemian Solo": { gate: 20, oop: true, booster: true, boost: 9, wah: false, chorus: false, chorusLvl: 0, amp: true, ampModel: 'vox', drive: 8, bass: 4, mid: 7, treble: 8, volume: 5, delay: false, delayMix: 0, delay1: 800, delay2: 1600 },
       "Brighton Rock": { gate: 15, oop: false, booster: true, boost: 7, wah: false, chorus: false, chorusLvl: 0, amp: true, ampModel: 'vox', drive: 7, bass: 5, mid: 4, treble: 7, volume: 5, delay: true, delayMix: 6, delay1: 800, delay2: 1600 },
       "Radio Ga Ga Clean": { gate: 5, oop: false, booster: false, boost: 0, wah: false, chorus: true, chorusLvl: 6, amp: true, ampModel: 'vox', drive: 2, bass: 5, mid: 5, treble: 6, volume: 5, delay: false, delayMix: 0, delay1: 800, delay2: 1600 },
