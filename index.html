@@ -645,6 +645,9 @@
           trebleBooster.gain.value = state.booster ? state.boost * 2.5 : 0;
         }
       }
+      
+      if (chorusWet && chorusDry) {
+        const val = state.chorus ? state.chorusLvl / 10 : 0;
         chorusWet.gain.value = val;
         chorusDry.gain.value = state.chorus ? (1 - val) : 1;
       }
