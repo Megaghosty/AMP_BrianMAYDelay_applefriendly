@@ -489,14 +489,26 @@
       ui.status.textContent = `Preset chargé : ${name}`;
     }
 
-    function makeDistortionCurve(amount) {
+    function makeDistortionCurve(amount, type = 'vox') {
       const k = typeof amount === 'number' ? amount : 50;
       const nSamples = 44100;
       const curve = new Float32Array(nSamples);
-      const deg = Math.PI / 180;
-      for (let i = 0; i < nSamples; ++i) {
-        const x = i * 2 / nSamples - 1;
-        curve[i] = (3 + k) * x * 20 * deg / (Math.PI + k * Math.abs(x));
+      
+      if (type === 'fender') {
+        // Asymmetric closer to a screamer/fender overdrive push
+        for (let i = 0; i < nSamples; ++i) {
+          let x = i * 2 / nSamples - 1;
+          if (x < 0) x = -Math.pow(-x, 0.8);
+          const driveAmount = (k * 0.4);
+          curve[i] = (1 + driveAmount) * x / (1 + driveAmount * Math.abs(x));
+        }
+      } else {
+        // Vox symmetrical warm clipping
+        const deg = Math.PI / 180;
+        for (let i = 0; i < nSamples; ++i) {
+          const x = i * 2 / nSamples - 1;
+          curve[i] = (3 + k) * x * 20 * deg / (Math.PI + k * Math.abs(x));
+        }
       }
       return curve;
     }
@@ -650,8 +662,22 @@
       if (cabSim) cabSim.frequency.value = isFender ? 5000 : 6000;
 
       if (driveGain && waveShaper) {
-        driveGain.gain.value = (state.drive * 10) / 20;
-        waveShaper.curve = makeDistortionCurve(state.drive * 10);
+        driveGain.gain.value = isFender ? (state.drive * 5) / 20 : (state.drive * 10) / 20;
+        waveShaper.curve = makeDistortionCurve(state.drive * 10, state.ampModel);
+      }
+      
+      if (trebleBooster) {
+        if (isFender) {
+          // Emulation type Tube Screamer pour SRV (bosse dans les médiums)
+          trebleBooster.type = 'peaking';
+          trebleBooster.frequency.value = 720;
+          trebleBooster.Q.value = 1.0;
+        } else {
+          // Emulation type Range Master pour Brian May (high shelf)
+          trebleBooster.type = 'highshelf';
+          trebleBooster.frequency.value = 1500;
+          trebleBooster.Q.value = 1.0;
+        }
       }
       if (masterVol) masterVol.gain.value = state.volume / 10;
       if (wahFilter && !state.wah) wahFilter.gain.value = 0;
