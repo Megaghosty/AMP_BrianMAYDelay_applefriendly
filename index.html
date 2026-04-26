@@ -363,11 +363,11 @@
 
   <script>
     const factoryPresets = {
-      "Guitar Chalk (Défaut)": { gate: 15, oop: false, booster: true, boost: 6, wah: false, chorus: true, chorusLvl: 2, amp: true, ampModel: 'vox', drive: 6, bass: 5, mid: 3, treble: 8, volume: 10, delay: true, delayMix: 3, delay1: 800, delay2: 1600 },
-      "Bohemian Solo": { gate: 20, oop: true, booster: true, boost: 9, wah: false, chorus: false, chorusLvl: 0, amp: true, ampModel: 'vox', drive: 8, bass: 4, mid: 7, treble: 8, volume: 10, delay: false, delayMix: 0, delay1: 800, delay2: 1600 },
-      "Brighton Rock": { gate: 15, oop: false, booster: true, boost: 7, wah: false, chorus: false, chorusLvl: 0, amp: true, ampModel: 'vox', drive: 7, bass: 5, mid: 4, treble: 7, volume: 10, delay: true, delayMix: 6, delay1: 800, delay2: 1600 },
-      "Radio Ga Ga Clean": { gate: 5, oop: false, booster: false, boost: 0, wah: false, chorus: true, chorusLvl: 6, amp: true, ampModel: 'vox', drive: 2, bass: 5, mid: 5, treble: 6, volume: 10, delay: false, delayMix: 0, delay1: 800, delay2: 1600 },
-      "SRV Texas Blues": { gate: 10, oop: false, booster: true, boost: 5, wah: false, chorus: false, chorusLvl: 0, amp: true, ampModel: 'fender', drive: 5, bass: 6, mid: 8, treble: 6, volume: 10, delay: false, delayMix: 0, delay1: 0, delay2: 0 }
+      "Guitar Chalk (Défaut)": { gate: 15, oop: false, booster: true, boost: 6, wah: false, chorus: true, chorusLvl: 2, amp: true, ampModel: 'vox', drive: 6, bass: 5, mid: 3, treble: 8, volume: 5, delay: true, delayMix: 3, delay1: 800, delay2: 1600 },
+      "Bohemian Solo": { gate: 20, oop: true, booster: true, boost: 9, wah: false, chorus: false, chorusLvl: 0, amp: true, ampModel: 'vox', drive: 8, bass: 4, mid: 7, treble: 8, volume: 5, delay: false, delayMix: 0, delay1: 800, delay2: 1600 },
+      "Brighton Rock": { gate: 15, oop: false, booster: true, boost: 7, wah: false, chorus: false, chorusLvl: 0, amp: true, ampModel: 'vox', drive: 7, bass: 5, mid: 4, treble: 7, volume: 5, delay: true, delayMix: 6, delay1: 800, delay2: 1600 },
+      "Radio Ga Ga Clean": { gate: 5, oop: false, booster: false, boost: 0, wah: false, chorus: true, chorusLvl: 6, amp: true, ampModel: 'vox', drive: 2, bass: 5, mid: 5, treble: 6, volume: 5, delay: false, delayMix: 0, delay1: 800, delay2: 1600 },
+      "SRV Texas Blues": { gate: 10, oop: false, booster: true, boost: 5, wah: false, chorus: false, chorusLvl: 0, amp: true, ampModel: 'fender', drive: 5, bass: 6, mid: 8, treble: 6, volume: 5, delay: false, delayMix: 0, delay1: 0, delay2: 0 }
     };
 
     let memoryPresets = {};
@@ -430,6 +430,8 @@
     let trebleBooster, outOfPhaseFilter, wahFilter, chorusWet, chorusDry, chorusDelayNode;
     let analyser, gateGain, humFilter, gateDataArray, meterDataArray;
     let oopGainNode, dryGuitarGainNode;
+    let gateEnvelope = 0;
+    let isGateOpen = true;
 
     function safeSavePresets() {
       try { localStorage.setItem('brianMayPresetsV2', JSON.stringify(userPresets)); } catch (e) { memoryPresets = userPresets; }
@@ -602,7 +604,26 @@
       let maxVal = 0;
       for (let i = 0; i < gateDataArray.length; i++) {
         const diff = Math.abs(gateDataArray[i] - 128);
-        if (diff > maxVal) maxVal = diff;
+      
+      // Enveloppe follower pour lisser la détection (évite le "broutement" ou "chatter")
+      if (maxVal > gateEnvelope) {
+        gateEnvelope = maxVal;
+      } else {
+        gateEnvelope *= 0.96; // Release exponentiel de la détection
+      }
+
+      const threshold = state.gate / 2.0;
+      
+      if (gateEnvelope > threshold) {
+        if (!isGateOpen) {
+          gateGain.gain.setTargetAtTime(1, audioCtx.currentTime, 0.005); // Attaque ultra-rapide
+          isGateOpen = true;
+        }
+      } else {
+        if (isGateOpen) {
+          gateGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.15); // Release audio doux
+          isGateOpen = false;
+        }
       }
       const currentThreshold = state.gate / 3.0;
       gateGain.gain.setTargetAtTime(maxVal < currentThreshold ? 0 : 1, audioCtx.currentTime, maxVal < currentThreshold ? 0.05 : 0.01);
