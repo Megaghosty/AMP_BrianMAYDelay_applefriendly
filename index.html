@@ -10,128 +10,151 @@
   <link rel="manifest" href="./assets/manifest.webmanifest" />
   <style>
     :root {
-      --bg: #0f0f11;
-      --panel: #1b1b1f;
-      --panel-2: #24252a;
-      --panel-3: #2d2f36;
+      --bg: #000000;
+      --panel: rgba(28, 28, 30, 0.7);
+      --panel-2: rgba(44, 44, 46, 0.8);
+      --panel-3: rgba(58, 58, 60, 0.8);
       --text: #f5f5f5;
-      --muted: #b8bec9;
-      --line: rgba(255,255,255,.08);
-      --accent: #e53935;
-      --accent-glow: rgba(229,57,53,.4);
-      --accent-2: #f1c40f;
-      --green: #2ecc71;
-      --blue: #3498db;
-      --shadow: 0 16px 40px rgba(0,0,0,.45);
-      --control-h: 56px;
+      --muted: #ebebf599; /* iOS secondary label */
+      --line: rgba(255, 255, 255, 0.15);
+      --accent: #ff3b30; /* iOS Red */
+      --accent-glow: rgba(255, 59, 48, 0.4);
+      --accent-2: #ffd60a; /* iOS Yellow */
+      --green: #34c759; /* iOS Green */
+      --blue: #0a84ff; /* iOS Blue */
+      --shadow: 0 10px 40px rgba(0,0,0,0.5);
+      --control-h: 50px;
+      --radius: 20px;
     }
 
-    * { box-sizing: border-box; }
-    html, body { margin: 0; min-height: 100%; background: var(--bg); color: var(--text); font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-    body { padding: env(safe-area-inset-top) 14px env(safe-area-inset-bottom) 14px; background: radial-gradient(circle at top, #1a1a24 0%, var(--bg) 80%); }
-    button, select, input { font: inherit; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { 
+      margin: 0; 
+      min-height: 100%; 
+      background: var(--bg); 
+      color: var(--text); 
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+      overscroll-behavior-y: none;
+    }
+    
+    body { 
+      padding: env(safe-area-inset-top) 16px env(safe-area-inset-bottom) 16px; 
+      background: radial-gradient(circle at 50% -20%, #1c1c1e 0%, var(--bg) 100%);
+      background-attachment: fixed;
+    }
+    
+    button, select, input { font: inherit; transition: all 0.25s cubic-bezier(0.25, 1, 0.5, 1); }
 
     .app {
-      max-width: 1280px;
+      max-width: 1024px;
       margin: 0 auto;
       display: grid;
-      gap: var(--gap);
+      gap: 20px;
+      padding-bottom: 30px;
       min-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
     }
 
+    /* TOPBAR */
     .topbar {
       display: grid;
       grid-template-columns: 1.4fr 1fr auto;
-      gap: 12px;
+      gap: 16px;
       align-items: center;
-      background: linear-gradient(180deg, rgba(31,32,38,0.9), rgba(23,24,28,0.95));
-      backdrop-filter: blur(12px);
-      border: 1px solid var(--line);
-      border-radius: 22px;
-      padding: 14px;
+      background: rgba(28, 28, 30, 0.85);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-bottom: 0.5px solid var(--line);
+      border-radius: var(--radius);
+      padding: 16px 24px;
       box-shadow: var(--shadow);
       position: sticky;
-      top: 8px;
-      z-index: 5;
+      top: 10px;
+      z-index: 50;
     }
 
-    .brand h1 { margin: 0; font-size: clamp(1.2rem, 1rem + 1vw, 2rem); color: #fff; text-shadow: 0 2px 10px rgba(255,255,255,0.1); }
-    .brand p { margin: 6px 0 0; color: var(--muted); font-size: .95rem; }
+    .brand h1 { margin: 0; font-size: 22px; font-weight: 700; color: #fff; letter-spacing: -0.5px; text-shadow: none; }
+    .brand p { margin: 4px 0 0; color: var(--muted); font-size: 13px; font-weight: 400; }
 
-    .start-row, .preset-row { display: flex; gap: 10px; align-items: center; }
+    .start-row, .preset-row { display: flex; gap: 12px; align-items: center; }
 
+    /* CONTROLS */
     .btn, select {
       min-height: var(--control-h);
       border: 0;
-      border-radius: 16px;
-      padding: 0 16px;
+      border-radius: 14px;
+      padding: 0 20px;
+      font-size: 15px;
+      font-weight: 600;
     }
 
     .btn {
       background: var(--accent);
       color: white;
-      font-weight: 700;
       cursor: pointer;
-      box-shadow: 0 6px 20px var(--accent-glow);
     }
-    .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px var(--accent-glow); filter: brightness(1.1); }
-    .btn.secondary { background: #2d8cff; box-shadow: 0 6px 20px rgba(45,140,255,.3); }
-    .btn.secondary:hover { box-shadow: 0 8px 25px rgba(45,140,255,.4); }
-    .btn.ghost { background: var(--panel-3); box-shadow: none; border: 1px solid var(--line); }
-    .btn.ghost:hover { background: #353842; transform: none; box-shadow: none; }
-    .btn:active { transform: scale(.98); }
-    .btn:disabled { opacity: .55; cursor: not-allowed; transform: none; filter: none; }
+    .btn:hover { transform: scale(0.98); filter: brightness(1.1); }
+    .btn.secondary { background: var(--blue); }
+    .btn.ghost { background: var(--panel-3); color: var(--text); border: 1px solid var(--line); }
+    .btn.ghost:hover { background: rgba(72,72,74,0.9); }
+    .btn:active { transform: scale(0.95); opacity: 0.8; }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
     select {
       width: 100%;
       background: var(--panel-3);
       color: white;
+      appearance: none;
+      background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23FFFFFF%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+      background-repeat: no-repeat;
+      background-position: right 16px top 50%;
+      background-size: 10px auto;
+      padding-right: 40px;
       border: 1px solid var(--line);
     }
-    select:hover, select:focus { border-color: rgba(255,255,255,0.2); outline: none; }
-
+    
     .status {
       text-align: right;
       color: var(--muted);
-      font-size: .95rem;
-      background: rgba(0,0,0,0.2);
-      padding: 8px 14px;
+      font-size: 14px;
+      font-weight: 500;
+      background: rgba(0,0,0,0.3);
+      padding: 8px 16px;
       border-radius: 12px;
       border: 1px solid var(--line);
     }
 
+    /* LAYOUT */
     .grid {
       display: grid;
       grid-template-columns: 1.15fr 1fr;
-      gap: var(--gap);
+      gap: 20px;
+      align-items: start;
     }
 
-    .stack { display: grid; gap: var(--gap); }
+    .stack { display: grid; gap: 20px; }
 
+    /* PANELS */
     .panel {
-      background: linear-gradient(180deg, var(--panel), #17181c);
-      border: 1px solid var(--line);
-      border-radius: 22px;
-      padding: 18px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      background: var(--panel);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 0.5px solid var(--line);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.2);
       position: relative;
       overflow: hidden;
     }
-    .panel::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0; height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-    }
 
     .panel h2 {
-      margin: 0 0 14px;
-      font-size: 1.05rem;
+      margin: 0 0 16px;
+      font-size: 17px;
+      font-weight: 600;
       color: white;
-      letter-spacing: .02em;
+      letter-spacing: -0.3px;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
     }
     .panel h2::before {
       content: '';
@@ -140,166 +163,185 @@
       height: 16px;
       background: var(--accent);
       border-radius: 4px;
-      box-shadow: 0 0 8px var(--accent-glow);
     }
 
     .section-note {
-      margin: -8px 0 14px;
+      margin: -8px 0 16px;
       color: var(--muted);
-      font-size: .92rem;
+      font-size: 13px;
+      line-height: 1.4;
     }
 
+    /* TOGGLES (iOS Style) */
     .switch-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
+      gap: 16px;
     }
 
     .toggle {
-      min-height: 74px;
-      border-radius: 18px;
+      min-height: 76px;
+      border-radius: 16px;
       background: var(--panel-2);
-      border: 1px solid var(--line);
-      padding: 12px 14px;
+      border: 0.5px solid rgba(255,255,255,0.08);
+      padding: 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
+      gap: 12px;
       cursor: pointer;
-      color: left;
       text-align: left;
     }
-    .toggle:hover { background: #282a30; border-color: rgba(255,255,255,0.15); }
-    .toggle:active { transform: scale(0.98); }
-    .toggle.active { border-color: var(--green); background: rgba(46, 204, 113, 0.05); }
+    .toggle:active { transform: scale(0.97); }
+    .toggle.active { background: rgba(52, 199, 89, 0.1); border-color: rgba(52, 199, 89, 0.3); }
 
-    .toggle strong { display: block; font-size: 1rem; color: white; }
-    .toggle span { display: block; font-size: .88rem; color: var(--muted); margin-top: 4px; }
+    .toggle-text { flex: 1; }
+    .toggle strong { display: block; font-size: 15px; font-weight: 600; color: white; letter-spacing: -0.2px; }
+    .toggle span { display: block; font-size: 12px; color: var(--muted); margin-top: 4px; }
 
     .switch {
-      width: 72px;
-      height: 40px;
-      background: #3a3d46;
-      border-radius: 999px;
+      width: 50px;
+      height: 30px;
+      background: rgba(120,120,128,0.32);
+      border-radius: 30px;
       position: relative;
-      border: 1px inset rgba(255,255,255,.1);
       flex: 0 0 auto;
-      box-shadow: inset 0 2px 6px rgba(0,0,0,0.3);
+      transition: background 0.3s;
     }
     .switch::after {
       content: "";
       position: absolute;
-      width: 30px;
-      height: 30px;
+      width: 26px;
+      height: 26px;
       border-radius: 50%;
-      left: 4px;
-      top: 4px;
-      background: linear-gradient(180deg, #ffffff, #e0e0e0);
-      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
-      transition: transform .2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      left: 2px;
+      top: 2px;
+      background: #ffffff;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.15), 0 3px 1px rgba(0,0,0,0.06);
+      transition: transform .3s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
-    .toggle.active .switch { background: var(--green); box-shadow: inset 0 2px 6px rgba(0,100,0,0.5), 0 0 12px rgba(46, 204, 113, 0.3); border-color: transparent; }
-    .toggle.active .switch::after { transform: translateX(31px); }
+    
+    .toggle.active .switch { background: var(--green); }
+    .toggle.active .switch::after { transform: translateX(20px); }
 
+    /* SLIDERS */
     .slider-card {
-      background: var(--panel-2);
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 14px;
-      display: grid;
-      gap: 10px;
-      transition: all 0.2s ease;
+      background: rgba(0,0,0,0.2);
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      border: 1px solid transparent;
+      transition: border-color 0.2s;
     }
-    .slider-card:focus-within { border-color: var(--accent); box-shadow: 0 0 15px var(--accent-glow); background: rgba(229,57,53, 0.03); }
+    .slider-card:focus-within {
+      border-color: var(--blue);
+      background: rgba(10, 132, 255, 0.05);
+    }
     .slider-head {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 8px;
     }
-    .slider-head strong { font-size: 1rem; }
-    .slider-head span { color: var(--accent-2); font-weight: 700; min-width: 60px; text-align: right; text-shadow: 0 0 8px rgba(241, 196, 15, 0.4); }
+    .slider-head strong { font-size: 14px; font-weight: 500; color: #fff; }
+    .slider-head span { color: var(--blue); font-weight: 600; font-variant-numeric: tabular-nums; font-size: 14px; }
 
     input[type="range"] {
+      -webkit-appearance: none;
       width: 100%;
-      height: 36px;
-      accent-color: var(--accent);
+      height: 24px;
+      background: transparent;
+      margin: 0;
+      position: relative;
+    }
+    input[type="range"]:focus { outline: none; }
+    
+    input[type="range"]::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 6px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 3px;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 24px;
+      width: 24px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      margin-top: -9px;
       cursor: pointer;
+    }
+    input[type="range"]:focus::-webkit-slider-thumb {
+      box-shadow: 0 0 0 4px rgba(10, 132, 255, 0.3);
     }
 
     .amp-grid, .fx-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
+      gap: 16px;
     }
 
+    /* WAH PAD */
     .wah-pad {
       min-height: 220px;
-      border-radius: 22px;
-      border: 1px solid rgba(255,255,255,.08);
-      background:
-        radial-gradient(circle at 50% 30%, rgba(52,152,219,.18), transparent 40%),
-        linear-gradient(180deg, #1f2630, #14181e);
+      border-radius: 16px;
+      background: linear-gradient(180deg, #1c1c1e, #000);
+      border: 1px solid rgba(255,255,255,0.1);
       position: relative;
-      overflow: hidden;
       touch-action: none;
-      user-select: none;
       display: grid;
       place-items: center;
+      box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
+      user-select: none;
+      overflow: hidden;
     }
-    .wah-pad.active { box-shadow: inset 0 0 0 2px rgba(52,152,219,.55), 0 0 28px rgba(52,152,219,.2); }
-    .wah-pad::before {
-      content: "";
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(255,255,255,.9), rgba(255,255,255,.1));
-      opacity: .16;
+    .wah-pad.active {
+      border-color: var(--blue);
+      box-shadow: inset 0 0 30px rgba(10,132,255,0.2);
     }
     .wah-overlay {
-      position: absolute;
-      inset: 0;
-      display: grid;
-      place-items: center;
+      color: rgba(255,255,255,0.8);
+      font-weight: 600;
+      font-size: 16px;
       text-align: center;
-      padding: 20px;
-      color: #dbe9ff;
-      font-weight: 700;
+      pointer-events: none;
     }
-    .wah-overlay small { display: block; margin-top: 8px; color: #a9c4e9; font-weight: 500; }
+    .wah-overlay small { display: block; margin-top: 6px; color: var(--muted); font-size: 13px; font-weight: 400; }
 
+    /* METER */
     .meter {
-      height: 16px;
-      border-radius: 999px;
-      background: #2b2d34;
+      height: 12px;
+      border-radius: 6px;
+      background: rgba(0,0,0,0.4);
       overflow: hidden;
-      border: 1px solid rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,0.05);
     }
     .meter > div {
       height: 100%;
       width: 0%;
-      background: linear-gradient(90deg, #2ecc71, #f1c40f, #e74c3c);
-      transition: width .08s linear;
+      background: linear-gradient(90deg, var(--green), var(--accent-2), var(--accent));
+      transition: width .05s linear;
     }
 
     .tips {
-      font-size: .92rem;
+      font-size: 14px;
       color: var(--muted);
       line-height: 1.5;
     }
 
     .install-card {
       display: none;
-      background: rgba(45,140,255,.14);
-      border: 1px solid rgba(45,140,255,.3);
-      color: #d8eaff;
+      background: rgba(10,132,255,0.1);
+      border: 1px solid rgba(10,132,255,0.3);
     }
 
     .footer-note {
-      color: var(--muted);
-      font-size: .85rem;
+      color: rgba(255,255,255,0.3);
+      font-size: 13px;
       text-align: center;
-      padding-bottom: 8px;
+      padding: 10px 0;
     }
 
     @media (max-width: 980px) {
@@ -400,12 +442,12 @@
 
   <script>
     const factoryPresets = {
-      "Guitar Chalk (Défaut)": { gate: 15, oop: false, booster: true, boost: 6, wah: false, chorus: true, chorusLvl: 2, amp: true, ampModel: 'vox', drive: 6, bass: 5, mid: 3, treble: 8, volume: 5, delay: true, delayMix: 3, delay1: 800, delay2: 1600 },
-      "Brian May Live (Raw)": { gate: 18, oop: false, booster: true, boost: 8, wah: false, chorus: false, chorusLvl: 0, amp: true, ampModel: 'vox', drive: 8, bass: 5, mid: 6, treble: 8, volume: 5, delay: false, delayMix: 0, delay1: 0, delay2: 0 },
-      "Bohemian Solo": { gate: 20, oop: true, booster: true, boost: 9, wah: false, chorus: false, chorusLvl: 0, amp: true, ampModel: 'vox', drive: 8, bass: 4, mid: 7, treble: 8, volume: 5, delay: false, delayMix: 0, delay1: 800, delay2: 1600 },
-      "Brighton Rock": { gate: 15, oop: false, booster: true, boost: 7, wah: false, chorus: false, chorusLvl: 0, amp: true, ampModel: 'vox', drive: 7, bass: 5, mid: 4, treble: 7, volume: 5, delay: true, delayMix: 6, delay1: 800, delay2: 1600 },
-      "Radio Ga Ga Clean": { gate: 5, oop: false, booster: false, boost: 0, wah: false, chorus: true, chorusLvl: 6, amp: true, ampModel: 'vox', drive: 2, bass: 5, mid: 5, treble: 6, volume: 5, delay: false, delayMix: 0, delay1: 800, delay2: 1600 },
-      "SRV Texas Blues": { gate: 10, oop: false, booster: true, boost: 5, wah: false, chorus: false, chorusLvl: 0, amp: true, ampModel: 'fender', drive: 5, bass: 6, mid: 8, treble: 6, volume: 5, delay: false, delayMix: 0, delay1: 0, delay2: 0 }
+      "Guitar Chalk (Défaut)": { gate: 15, oop: false, booster: true, boost: 6, wah: false, chorus: true, chorusLvl: 2, reverb: 3, amp: true, ampModel: 'vox', drive: 6, bass: 5, mid: 3, treble: 8, volume: 5, delay: true, delayMix: 3, delay1: 800, delay2: 1600 },
+      "Brian May Live (Raw)": { gate: 18, oop: false, booster: true, boost: 8, wah: false, chorus: false, chorusLvl: 0, reverb: 1, amp: true, ampModel: 'vox', drive: 8, bass: 5, mid: 6, treble: 8, volume: 5, delay: false, delayMix: 0, delay1: 0, delay2: 0 },
+      "Bohemian Solo": { gate: 20, oop: true, booster: true, boost: 9, wah: false, chorus: false, chorusLvl: 0, reverb: 4, amp: true, ampModel: 'vox', drive: 8, bass: 4, mid: 7, treble: 8, volume: 5, delay: false, delayMix: 0, delay1: 800, delay2: 1600 },
+      "Brighton Rock": { gate: 15, oop: false, booster: true, boost: 7, wah: false, chorus: false, chorusLvl: 0, reverb: 2, amp: true, ampModel: 'vox', drive: 7, bass: 5, mid: 4, treble: 7, volume: 5, delay: true, delayMix: 6, delay1: 800, delay2: 1600 },
+      "Radio Ga Ga Clean": { gate: 5, oop: false, booster: false, boost: 0, wah: false, chorus: true, chorusLvl: 6, reverb: 5, amp: true, ampModel: 'vox', drive: 2, bass: 5, mid: 5, treble: 6, volume: 5, delay: false, delayMix: 0, delay1: 800, delay2: 1600 },
+      "SRV Texas Blues": { gate: 10, oop: false, booster: true, boost: 5, wah: false, chorus: false, chorusLvl: 0, reverb: 4, amp: true, ampModel: 'fender', drive: 5, bass: 6, mid: 8, treble: 6, volume: 5, delay: false, delayMix: 0, delay1: 0, delay2: 0 }
     };
 
     let memoryPresets = {};
@@ -429,7 +471,8 @@
     const mainSliders = [
       { key: 'gate', label: 'Noise Gate', min: 0, max: 100, step: 1, suffix: '%' },
       { key: 'boost', label: 'Boost', min: 0, max: 10, step: 1, suffix: '' },
-      { key: 'chorusLvl', label: 'Mix Chorus', min: 0, max: 10, step: 1, suffix: '' }
+      { key: 'chorusLvl', label: 'Mix Chorus', min: 0, max: 10, step: 1, suffix: '' },
+      { key: 'reverb', label: 'Reverb', min: 0, max: 10, step: 1, suffix: '' }
     ];
 
     const ampSliders = [
@@ -464,6 +507,7 @@
 
     let audioCtx, sourceNode, driveGain, waveShaper, bassEQ, midEQ, trebleEQ, cabSim, masterVol;
     let delay1Node, delay2Node, panDry, pan1, pan2, delayWetGain;
+    let reverbNode, reverbWetGain, reverbInputGain;
     let ampWet, ampDry, ampOutNode, delayInputGain;
     let trebleBooster, outOfPhaseFilter, wahFilter, chorusWet, chorusDry, chorusDelayNode;
     let analyser, gateGain, humFilter, gateDataArray, meterDataArray;
@@ -478,7 +522,7 @@
     function renderToggles() {
       ui.switchGrid.innerHTML = toggles.map(t => `
         <button class="toggle ${state[t.key] ? 'active' : ''}" data-toggle="${t.key}" aria-pressed="${state[t.key]}">
-          <div><strong>${t.label}</strong><span>${t.sub}</span></div>
+          <div class="toggle-text"><strong>${t.label}</strong><span>${t.sub}</span></div>
           <div class="switch" aria-hidden="true"></div>
         </button>
       `).join('');
@@ -553,6 +597,19 @@
       return curve;
     }
 
+    function createReverbIR(audioCtx) {
+      const sampleRate = audioCtx.sampleRate;
+      const length = sampleRate * 2.5; // 2.5 seconds tail
+      const impulse = audioCtx.createBuffer(2, length, sampleRate);
+      for (let i = 0; i < 2; i++) {
+        const channel = impulse.getChannelData(i);
+        for (let j = 0; j < length; j++) {
+          channel[j] = (Math.random() * 2 - 1) * Math.pow(1 - j / length, 3.0);
+        }
+      }
+      return impulse;
+    }
+
     async function startRig() {
       try {
         if (!audioCtx) {
@@ -620,6 +677,11 @@
       panDry = audioCtx.createStereoPanner(); pan1 = audioCtx.createStereoPanner(); pan2 = audioCtx.createStereoPanner();
       pan1.pan.value = -1; pan2.pan.value = 1;
 
+      reverbNode = audioCtx.createConvolver();
+      reverbNode.buffer = createReverbIR(audioCtx);
+      reverbInputGain = audioCtx.createGain();
+      reverbWetGain = audioCtx.createGain();
+
       sourceNode.connect(humFilter); humFilter.connect(analyser); analyser.connect(gateGain);
       gateGain.connect(outOfPhaseFilter); outOfPhaseFilter.connect(oopGainNode); gateGain.connect(dryGuitarGainNode);
       const prePedalNode = audioCtx.createGain(); oopGainNode.connect(prePedalNode); dryGuitarGainNode.connect(prePedalNode);
@@ -631,6 +693,7 @@
       ampDry.connect(ampOutNode); ampOutNode.connect(masterVol);
       masterVol.connect(panDry); panDry.connect(audioCtx.destination);
       masterVol.connect(delayInputGain); delayInputGain.connect(delay1Node); delay1Node.connect(pan1); pan1.connect(delayWetGain); delayInputGain.connect(delay2Node); delay2Node.connect(pan2); pan2.connect(delayWetGain); delayWetGain.connect(audioCtx.destination);
+      masterVol.connect(reverbInputGain); reverbInputGain.connect(reverbNode); reverbNode.connect(reverbWetGain); reverbWetGain.connect(audioCtx.destination);
 
       requestAnimationFrame(processNoiseGate);
       requestAnimationFrame(updateMeter);
@@ -722,6 +785,11 @@
       }
       if (delay1Node) delay1Node.delayTime.value = state.delay1 / 1000;
       if (delay2Node) delay2Node.delayTime.value = state.delay2 / 1000;
+
+      if (reverbWetGain && reverbInputGain) {
+        reverbInputGain.gain.value = state.reverb > 0 ? 1 : 0;
+        reverbWetGain.gain.value = state.reverb / 10;
+      }
       
       const isFender = state.ampModel === 'fender';
       if (bassEQ) {
