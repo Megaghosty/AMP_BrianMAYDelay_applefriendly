@@ -402,6 +402,7 @@
             <select id="amp-model" style="width: auto; min-height: 32px; padding: 0 10px; font-size: 0.9rem;" aria-label="Modèle d'ampli">
               <option value="vox">Vox AC30</option>
               <option value="fender">Texas Style (SRV)</option>
+              <option value="clapton">Bluesbreaker (Clapton)</option>
             </select>
           </div>
           <div class="amp-grid" id="amp-sliders"></div>
@@ -442,12 +443,13 @@
 
   <script>
     const factoryPresets = {
-      "Guitar Chalk (Défaut)": { gate: 15, oop: false, booster: true, boost: 8, wah: false, chorus: false, chorusLvl: 0, amp: true, ampModel: 'vox', drive: 8, bass: 5, mid: 5, treble: 8, volume: 5, delay: false, delayMix: 0, delay1: 0, delay2: 0 },
-      "Brian May Live (Raw)": { gate: 18, oop: false, booster: true, boost: 9, wah: false, chorus: false, chorusLvl: 0, amp: true, ampModel: 'vox', drive: 9, bass: 5, mid: 6, treble: 9, volume: 5, delay: false, delayMix: 0, delay1: 0, delay2: 0 },
-      "Bohemian Solo": { gate: 20, oop: true, booster: true, boost: 9, wah: false, chorus: false, chorusLvl: 0, amp: true, ampModel: 'vox', drive: 9, bass: 4, mid: 8, treble: 9, volume: 5, delay: false, delayMix: 0, delay1: 800, delay2: 1600 },
-      "Brighton Rock": { gate: 15, oop: false, booster: true, boost: 8, wah: false, chorus: false, chorusLvl: 0, amp: true, ampModel: 'vox', drive: 8, bass: 5, mid: 5, treble: 8, volume: 5, delay: true, delayMix: 7, delay1: 800, delay2: 1600 },
-      "Radio Ga Ga Clean": { gate: 5, oop: true, booster: false, boost: 2, wah: false, chorus: true, chorusLvl: 4, amp: true, ampModel: 'vox', drive: 3, bass: 5, mid: 6, treble: 7, volume: 5, delay: false, delayMix: 0, delay1: 800, delay2: 1600 },
-      "SRV Texas Blues": { gate: 10, oop: false, booster: true, boost: 6, wah: false, chorus: false, chorusLvl: 0, amp: true, ampModel: 'fender', drive: 6, bass: 6, mid: 8, treble: 6, volume: 5, delay: false, delayMix: 0, delay1: 0, delay2: 0 }
+      "Guitar Chalk (Défaut)": { gate: 15, oop: false, booster: true, boost: 8, wah: false, chorus: false, chorusLvl: 0, amp: true, ampModel: 'vox', drive: 8, bass: 5, mid: 5, treble: 8, volume: 5, outVol: 5, delay: false, delayMix: 0, delay1: 0, delay2: 0 },
+      "Brian May Live (Raw)": { gate: 18, oop: false, booster: true, boost: 9, wah: false, chorus: false, chorusLvl: 0, amp: true, ampModel: 'vox', drive: 9, bass: 5, mid: 6, treble: 9, volume: 5, outVol: 5, delay: false, delayMix: 0, delay1: 0, delay2: 0 },
+      "Bohemian Solo": { gate: 20, oop: true, booster: true, boost: 9, wah: false, chorus: false, chorusLvl: 0, amp: true, ampModel: 'vox', drive: 9, bass: 4, mid: 8, treble: 9, volume: 5, outVol: 5, delay: false, delayMix: 0, delay1: 800, delay2: 1600 },
+      "Brighton Rock": { gate: 15, oop: false, booster: true, boost: 8, wah: false, chorus: false, chorusLvl: 0, amp: true, ampModel: 'vox', drive: 8, bass: 5, mid: 5, treble: 8, volume: 5, outVol: 5, delay: true, delayMix: 7, delay1: 800, delay2: 1600 },
+      "Radio Ga Ga Clean": { gate: 5, oop: true, booster: false, boost: 2, wah: false, chorus: true, chorusLvl: 4, amp: true, ampModel: 'vox', drive: 3, bass: 5, mid: 6, treble: 7, volume: 5, outVol: 5, delay: false, delayMix: 0, delay1: 800, delay2: 1600 },
+      "SRV Texas Blues": { gate: 10, oop: false, booster: true, boost: 6, wah: false, chorus: false, chorusLvl: 0, amp: true, ampModel: 'fender', drive: 6, bass: 6, mid: 8, treble: 6, volume: 5, outVol: 5, delay: false, delayMix: 0, delay1: 0, delay2: 0 },
+      "Clapton Woman Tone": { gate: 12, oop: false, booster: true, boost: 5, wah: false, chorus: false, chorusLvl: 0, amp: true, ampModel: 'clapton', drive: 7, bass: 6, mid: 9, treble: 3, volume: 6, outVol: 5, delay: false, delayMix: 0, delay1: 0, delay2: 0 }
     };
 
     let memoryPresets = {};
@@ -471,7 +473,8 @@
     const mainSliders = [
       { key: 'gate', label: 'Noise Gate', min: 0, max: 100, step: 1, suffix: '%' },
       { key: 'boost', label: 'Boost', min: 0, max: 10, step: 1, suffix: '' },
-      { key: 'chorusLvl', label: 'Mix Chorus', min: 0, max: 10, step: 1, suffix: '' }
+      { key: 'chorusLvl', label: 'Mix Chorus', min: 0, max: 10, step: 1, suffix: '' },
+      { key: 'outVol', label: 'Volume Général', min: 0, max: 10, step: 1, suffix: '' }
     ];
 
     const ampSliders = [
@@ -504,7 +507,7 @@
       installCard: document.getElementById('install-card')
     };
 
-    let audioCtx, sourceNode, driveGain, waveShaper, bassEQ, midEQ, trebleEQ, cabSimHP, cabSimRes, cabSimLP, masterVol;
+    let audioCtx, sourceNode, driveGain, waveShaper, bassEQ, midEQ, trebleEQ, cabSimHP, cabSimRes, cabSimLP, masterVol, finalOutVol;
     let delay1Node, delay2Node, panDry, pan1, pan2, delayWetGain;
     let ampWet, ampDry, ampOutNode, delayInputGain;
     let trebleBooster, outOfPhaseFilter, wahFilter, chorusWet, chorusDry, chorusDelayNode;
@@ -582,6 +585,13 @@
         for (let i = 0; i < nSamples; ++i) {
           const x = i * 2 / nSamples - 1;
           curve[i] = Math.tanh(x * (1 + driveAmount)) / Math.tanh(1 + driveAmount);
+        }
+      } else if (type === 'clapton') {
+        // Marshall Bluesbreaker JTM45 - Très chaud, beaucoup de médiums, "Woman Tone"
+        const driveAmount = k * 0.4;
+        for (let i = 0; i < nSamples; ++i) {
+          const x = i * 2 / nSamples - 1;
+          curve[i] = Math.sin(x * (Math.PI / 2) * driveAmount);
         }
       } else {
         // Vox AC30 tube emulation (Asymmetrical clipping pour une distorsion riche en harmoniques paires)
@@ -663,6 +673,7 @@
       cabSimRes = audioCtx.createBiquadFilter(); cabSimRes.type = 'peaking'; cabSimRes.frequency.value = 2500; cabSimRes.Q.value = 1.2; cabSimRes.gain.value = 3;
       cabSimLP = audioCtx.createBiquadFilter(); cabSimLP.type = 'lowpass'; cabSimLP.frequency.value = 5500; cabSimLP.Q.value = 1.0;
       masterVol = audioCtx.createGain();
+      finalOutVol = audioCtx.createGain();
 
       delayInputGain = audioCtx.createGain();
       delayWetGain = audioCtx.createGain();
@@ -680,8 +691,9 @@
       postPedalNode.connect(ampWet); postPedalNode.connect(ampDry);
       ampWet.connect(driveGain); driveGain.connect(waveShaper); waveShaper.connect(bassEQ); bassEQ.connect(midEQ); midEQ.connect(trebleEQ); trebleEQ.connect(cabSimHP); cabSimHP.connect(cabSimRes); cabSimRes.connect(cabSimLP); cabSimLP.connect(ampOutNode);
       ampDry.connect(ampOutNode); ampOutNode.connect(masterVol);
-      masterVol.connect(panDry); panDry.connect(audioCtx.destination);
-      masterVol.connect(delayInputGain); delayInputGain.connect(delay1Node); delay1Node.connect(pan1); pan1.connect(delayWetGain); delayInputGain.connect(delay2Node); delay2Node.connect(pan2); pan2.connect(delayWetGain); delayWetGain.connect(audioCtx.destination);
+      masterVol.connect(panDry); panDry.connect(finalOutVol);
+      masterVol.connect(delayInputGain); delayInputGain.connect(delay1Node); delay1Node.connect(pan1); pan1.connect(delayWetGain); delayInputGain.connect(delay2Node); delay2Node.connect(pan2); pan2.connect(delayWetGain); delayWetGain.connect(finalOutVol);
+      finalOutVol.connect(audioCtx.destination);
 
       requestAnimationFrame(processNoiseGate);
       requestAnimationFrame(updateMeter);
@@ -747,8 +759,13 @@
           trebleBooster.type = 'peaking';
           trebleBooster.frequency.value = 720;
           trebleBooster.Q.value = 1.0;
-          // Le "boost" pousse moins fort que le Range Master
           trebleBooster.gain.value = state.booster ? state.boost * 1.5 : 0;
+        } else if (state.ampModel === 'clapton') {
+          // Emulation Beano / Boost très onctueux pour Clapton (bas-médiums poussés)
+          trebleBooster.type = 'peaking';
+          trebleBooster.frequency.value = 500;
+          trebleBooster.Q.value = 0.8;
+          trebleBooster.gain.value = state.booster ? state.boost * 2.0 : 0;
         } else {
           // Emulation type Range Master pour Brian May (peaking / passe-bande agressif typique)
           trebleBooster.type = 'peaking';
@@ -775,34 +792,37 @@
       if (delay2Node) delay2Node.delayTime.value = state.delay2 / 1000;
       
       const isFender = state.ampModel === 'fender';
+      const isClapton = state.ampModel === 'clapton';
+      
       if (bassEQ) {
-        bassEQ.frequency.value = isFender ? 100 : 150;
+        bassEQ.frequency.value = isFender ? 100 : (isClapton ? 120 : 150);
         bassEQ.gain.value = (state.bass - 5) * 2;
       }
       if (midEQ) {
-        midEQ.frequency.value = isFender ? 800 : 800; // Plus typé AC30/SRV
+        midEQ.frequency.value = isFender ? 800 : (isClapton ? 600 : 800); // Plus bas pour Clapton
         midEQ.gain.value = (state.mid - 5) * 2;
       }
       if (trebleEQ) {
-        trebleEQ.frequency.value = isFender ? 4000 : 3500;
+        trebleEQ.frequency.value = isFender ? 4000 : (isClapton ? 3000 : 3500); // Rolloff plus tôt pour Clapton
         trebleEQ.gain.value = (state.treble - 5) * 2;
       }
       
       // Adaptation de la Cab Sim au modèle
       if (cabSimLP && cabSimHP && cabSimRes) {
-        cabSimLP.frequency.value = isFender ? 4500 : 5500;
+        cabSimLP.frequency.value = isFender ? 4500 : (isClapton ? 4000 : 5500); // Woman tone
         cabSimHP.frequency.value = isFender ? 100 : 80;
-        cabSimRes.frequency.value = isFender ? 2000 : 2500;
-        cabSimRes.gain.value = isFender ? 2 : 3;
+        cabSimRes.frequency.value = isFender ? 2000 : (isClapton ? 1500 : 2500);
+        cabSimRes.gain.value = isFender ? 2 : (isClapton ? 4 : 3); // Grosse résonance mid pour Clapton
       }
 
       if (driveGain && waveShaper) {
-        // Gain réduit massivement sur Fender pour garder un son clair/crunch naturel (blues)
-        driveGain.gain.value = isFender ? (state.drive * 1.5) / 20 : (state.drive * 10) / 20;
+        // Gain réduit pour Fender, crunch velu pour Clapton, Max pour Vox
+        driveGain.gain.value = isFender ? (state.drive * 1.5) / 20 : (isClapton ? (state.drive * 5) / 20 : (state.drive * 10) / 20);
         waveShaper.curve = makeDistortionCurve(state.drive * 10, state.ampModel);
       }
       
       if (masterVol) masterVol.gain.value = state.volume / 10;
+      if (finalOutVol) finalOutVol.gain.value = (state.outVol !== undefined ? state.outVol : 5) / 10;
       if (wahFilter && !state.wah) wahFilter.gain.value = 0;
     }
 
