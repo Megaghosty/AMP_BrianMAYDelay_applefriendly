@@ -587,11 +587,17 @@
           curve[i] = Math.tanh(x * (1 + driveAmount)) / Math.tanh(1 + driveAmount);
         }
       } else if (type === 'clapton') {
-        // Marshall Bluesbreaker JTM45 - Très chaud, beaucoup de médiums, "Woman Tone"
-        const driveAmount = k * 0.4;
+        // Marshall Bluesbreaker JTM45 - Crunch bluesy, asymétrique et très dynamique (Lampes)
+        const ampDrive = k * 0.3; // Drive plus contrôlé que le Vox
         for (let i = 0; i < nSamples; ++i) {
-          const x = i * 2 / nSamples - 1;
-          curve[i] = Math.sin(x * (Math.PI / 2) * driveAmount);
+          let x = i * 2 / nSamples - 1;
+          x *= (1 + ampDrive);
+          // Ecrêtage chaud type lampes poussées (asymétrique mais plus rond)
+          if (x < 0) {
+            curve[i] = -1 * (1 - Math.exp(x)) * 0.85; // Écrêtage très arrondi sur les graves
+          } else {
+            curve[i] = Math.tanh(x); // Compression douce sur les aigus (écrêtage symétrique en haut)
+          }
         }
       } else {
         // Vox AC30 tube emulation (Asymmetrical clipping pour une distorsion riche en harmoniques paires)
@@ -761,11 +767,11 @@
           trebleBooster.Q.value = 1.0;
           trebleBooster.gain.value = state.booster ? state.boost * 1.5 : 0;
         } else if (state.ampModel === 'clapton') {
-          // Emulation Beano / Boost très onctueux pour Clapton (bas-médiums poussés)
+          // Emulation "Dallas Rangemaster" boostant les hauts-médiums (800-1000Hz) type Woman Tone plus agressif
           trebleBooster.type = 'peaking';
-          trebleBooster.frequency.value = 500;
-          trebleBooster.Q.value = 0.8;
-          trebleBooster.gain.value = state.booster ? state.boost * 2.0 : 0;
+          trebleBooster.frequency.value = 800; // Fréquence idéale pour percer le mix blues
+          trebleBooster.Q.value = 1.0;
+          trebleBooster.gain.value = state.booster ? state.boost * 2.5 : 0;
         } else {
           // Emulation type Range Master pour Brian May (peaking / passe-bande agressif typique)
           trebleBooster.type = 'peaking';
@@ -799,25 +805,25 @@
         bassEQ.gain.value = (state.bass - 5) * 2;
       }
       if (midEQ) {
-        midEQ.frequency.value = isFender ? 800 : (isClapton ? 600 : 800); // Plus bas pour Clapton
+        midEQ.frequency.value = isFender ? 800 : (isClapton ? 700 : 800); // 700Hz, très présent sur Les Paul/Marshall
         midEQ.gain.value = (state.mid - 5) * 2;
       }
       if (trebleEQ) {
-        trebleEQ.frequency.value = isFender ? 4000 : (isClapton ? 3000 : 3500); // Rolloff plus tôt pour Clapton
+        trebleEQ.frequency.value = isFender ? 4000 : (isClapton ? 3200 : 3500); // Filtre doux sur les aigus du Bluesbreaker
         trebleEQ.gain.value = (state.treble - 5) * 2;
       }
       
       // Adaptation de la Cab Sim au modèle
       if (cabSimLP && cabSimHP && cabSimRes) {
-        cabSimLP.frequency.value = isFender ? 4500 : (isClapton ? 4000 : 5500); // Woman tone
-        cabSimHP.frequency.value = isFender ? 100 : 80;
-        cabSimRes.frequency.value = isFender ? 2000 : (isClapton ? 1500 : 2500);
-        cabSimRes.gain.value = isFender ? 2 : (isClapton ? 4 : 3); // Grosse résonance mid pour Clapton
+        cabSimLP.frequency.value = isFender ? 4500 : (isClapton ? 4200 : 5500); // Son très rond, pas aggressif
+        cabSimHP.frequency.value = isFender ? 100 : 90;
+        cabSimRes.frequency.value = isFender ? 2000 : (isClapton ? 1800 : 2500); // Bosse Greenback
+        cabSimRes.gain.value = isFender ? 2 : (isClapton ? 4.5 : 3); // Très prononcé dans les médiums (Woman Tone)
       }
 
       if (driveGain && waveShaper) {
-        // Gain réduit pour Fender, crunch velu pour Clapton, Max pour Vox
-        driveGain.gain.value = isFender ? (state.drive * 1.5) / 20 : (isClapton ? (state.drive * 5) / 20 : (state.drive * 10) / 20);
+        // Gain réduit pour Fender, crunch blues riche pour Clapton (4/20 env), Max pour Vox
+        driveGain.gain.value = isFender ? (state.drive * 1.5) / 20 : (isClapton ? (state.drive * 4) / 20 : (state.drive * 10) / 20);
         waveShaper.curve = makeDistortionCurve(state.drive * 10, state.ampModel);
       }
       
