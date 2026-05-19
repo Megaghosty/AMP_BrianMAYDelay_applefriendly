@@ -527,10 +527,12 @@
       installCard: document.getElementById('install-card')
     };
 
-    let audioCtx, sourceNode, driveGain, waveShaper, bassEQ, midEQ, trebleEQ, cabSimHP, cabSimRes, cabSimLP, masterVol, finalOutVol;
-    let delay1Node, delay2Node, panDry, pan1, pan2, delayWetGain;
+    let audioCtx, sourceNode, driveGain, waveShaper, bassEQ, midEQ, trebleEQ;
+    let cabSimHP, cabSimRes, cabSimNotch, cabSimPresence, cabSimLP;
+    let masterVol, finalOutVol;
+    let delay1Node, delay2Node, delayLP, panDry, pan1, pan2, delayWetGain;
     let ampWet, ampDry, ampOutNode, delayInputGain;
-    let trebleBooster, outOfPhaseFilter, wahFilter, chorusWet, chorusDry, chorusDelayNode;
+    let trebleBooster, tbColor, tbGainNode, outOfPhaseFilter, wahFilter, chorusWet, chorusDry, chorusDelayNode;
     let analyser, gateGain, humFilter, gateDataArray, meterDataArray;
     let oopGainNode, dryGuitarGainNode;
     let gateEnvelope = 0;
@@ -599,39 +601,33 @@
       const nSamples = 44100;
       const curve = new Float32Array(nSamples);
       
-      if (type === 'fender') {
-        // Soft clipping type lampe (clair/crunch)
-        const driveAmount = k * 0.12; 
-        for (let i = 0; i < nSamples; ++i) {
-          const x = i * 2 / nSamples - 1;
-          curve[i] = Math.tanh(x * (1 + driveAmount)) / Math.tanh(1 + driveAmount);
-        }
-      } else if (type === 'clapton') {
-        // Marshall Bluesbreaker JTM45 - Crunch bluesy, asymétrique et très dynamique (Lampes)
-        const ampDrive = k * 0.3; // Drive plus contrôlé que le Vox
-        for (let i = 0; i < nSamples; ++i) {
-          let x = i * 2 / nSamples - 1;
-          x *= (1 + ampDrive);
-          // Ecrêtage chaud type lampes poussées (asymétrique mais plus rond)
+      for (let i = 0; i < nSamples; ++i) {
+        let x = i * 2 / nSamples - 1;
+        
+        if (type === 'fender') {
+          // Fender 6L6: Chaleureux, dynamique, symétrique (tube sag)
+          x *= (1 + k * 0.15);
+          curve[i] = Math.tanh(x) + 0.15 * Math.sin(Math.PI * x * 0.5);
+        } else if (type === 'clapton') {
+          // JTM45/EL34: Punchy, écrêtage asymétrique modéré, drive serré
+          x *= (1 + k * 0.25);
           if (x < 0) {
-            curve[i] = -1 * (1 - Math.exp(x)) * 0.85; // Écrêtage très arrondi sur les graves
+            curve[i] = -1 * (1 - Math.exp(x * 1.5)) * 0.75; 
           } else {
-            curve[i] = Math.tanh(x); // Compression douce sur les aigus (écrêtage symétrique en haut)
+            curve[i] = Math.tanh(x * 1.2); 
+          }
+        } else {
+          // Vox AC30 EL84: Class A, très asymétrique sous effort, beaucoup d'harmoniques paires
+          x *= (1 + k * 0.4);
+          if (x < 0) {
+            curve[i] = Math.max(-0.65, x); // Coupure cathode très raide (Cold clipping)
+          } else {
+            curve[i] = (1.1 * x) / (1 + x * 0.8); // Arrondi très doux des crêtes positives
           }
         }
-      } else {
-        // Vox AC30 tube emulation (Asymmetrical clipping pour une distorsion riche en harmoniques paires)
-        const driveAmount = k * 0.6;
-        for (let i = 0; i < nSamples; ++i) {
-          let x = i * 2 / nSamples - 1;
-          x = x * driveAmount;
-          // Ecrêtage asymétrique typique des lampes de préampli poussées
-          if (x < 0) {
-            curve[i] = -1 * (1 - Math.exp(x)); // Soft clip sur la partie négative
-          } else {
-            curve[i] = (1.5 * x) / (1 + x); // Harder clip sur la partie positive
-          }
-        }
+        
+        // Anti-aliasing soft clip final et normalisation
+        curve[i] = Math.tanh(curve[i] * 1.1) * 0.9;
       }
       return curve;
     }
@@ -680,7 +676,11 @@
       dryGuitarGainNode = audioCtx.createGain();
 
       wahFilter = audioCtx.createBiquadFilter(); wahFilter.type = 'peaking'; wahFilter.frequency.value = 300; wahFilter.Q.value = 5; wahFilter.gain.value = 0;
-      trebleBooster = audioCtx.createBiquadFilter(); trebleBooster.type = 'highshelf'; trebleBooster.frequency.value = 1500;
+      
+      // Treble Booster / Overdrive Stage
+      trebleBooster = audioCtx.createBiquadFilter(); trebleBooster.type = 'highpass'; 
+      tbColor = audioCtx.createBiquadFilter(); tbColor.type = 'peaking';
+      tbGainNode = audioCtx.createGain();
 
       chorusDelayNode = audioCtx.createDelay(); chorusDelayNode.delayTime.value = 0.025;
       const chorusLFO = audioCtx.createOscillator(); chorusLFO.frequency.value = 1.5;
@@ -691,17 +691,21 @@
       ampWet = audioCtx.createGain(); ampDry = audioCtx.createGain(); ampOutNode = audioCtx.createGain();
       driveGain = audioCtx.createGain(); waveShaper = audioCtx.createWaveShaper(); waveShaper.oversample = '4x';
       bassEQ = audioCtx.createBiquadFilter(); bassEQ.type = 'lowshelf'; bassEQ.frequency.value = 100;
-      midEQ = audioCtx.createBiquadFilter(); midEQ.type = 'peaking'; midEQ.Q.value = 0.7; midEQ.frequency.value = 800; // Ajustement d'EQ type ampli pour creuser ou booster musicalement
+      midEQ = audioCtx.createBiquadFilter(); midEQ.type = 'peaking'; midEQ.Q.value = 0.7; midEQ.frequency.value = 800;
       trebleEQ = audioCtx.createBiquadFilter(); trebleEQ.type = 'highshelf'; trebleEQ.frequency.value = 2500;
       
-      // Simulation riche de HP 2x12
-      cabSimHP = audioCtx.createBiquadFilter(); cabSimHP.type = 'highpass'; cabSimHP.frequency.value = 80; cabSimHP.Q.value = 1.0;
-      cabSimRes = audioCtx.createBiquadFilter(); cabSimRes.type = 'peaking'; cabSimRes.frequency.value = 2500; cabSimRes.Q.value = 1.2; cabSimRes.gain.value = 3;
-      cabSimLP = audioCtx.createBiquadFilter(); cabSimLP.type = 'lowpass'; cabSimLP.frequency.value = 5500; cabSimLP.Q.value = 1.0;
+      // Simulation très haute qualité de Cabinet (Speaker IR-like Filter Bank)
+      cabSimHP = audioCtx.createBiquadFilter(); cabSimHP.type = 'highpass';
+      cabSimRes = audioCtx.createBiquadFilter(); cabSimRes.type = 'peaking'; // Bosse de résonance primordiale
+      cabSimNotch = audioCtx.createBiquadFilter(); cabSimNotch.type = 'peaking'; // Coupe-bas agressif pour le "Fizz"
+      cabSimPresence = audioCtx.createBiquadFilter(); cabSimPresence.type = 'peaking'; // Clarté/Air
+      cabSimLP = audioCtx.createBiquadFilter(); cabSimLP.type = 'lowpass'; // Chute des fréquences hautes (Speaker roll-off)
+      
       masterVol = audioCtx.createGain();
       finalOutVol = audioCtx.createGain();
 
       delayInputGain = audioCtx.createGain();
+      delayLP = audioCtx.createBiquadFilter(); delayLP.type = 'lowpass'; delayLP.frequency.value = 2500; // Son analogique/bande pour le delay
       delayWetGain = audioCtx.createGain();
       delay1Node = audioCtx.createDelay(3.0);
       delay2Node = audioCtx.createDelay(3.0);
@@ -711,14 +715,24 @@
       sourceNode.connect(humFilter); humFilter.connect(analyser); analyser.connect(gateGain);
       gateGain.connect(outOfPhaseFilter); outOfPhaseFilter.connect(oopGainNode); gateGain.connect(dryGuitarGainNode);
       const prePedalNode = audioCtx.createGain(); oopGainNode.connect(prePedalNode); dryGuitarGainNode.connect(prePedalNode);
-      prePedalNode.connect(wahFilter); wahFilter.connect(trebleBooster);
-      trebleBooster.connect(chorusDelayNode); chorusDelayNode.connect(chorusWet); trebleBooster.connect(chorusDry);
+      prePedalNode.connect(wahFilter); 
+      
+      wahFilter.connect(trebleBooster); trebleBooster.connect(tbColor); tbColor.connect(tbGainNode);
+      
+      tbGainNode.connect(chorusDelayNode); chorusDelayNode.connect(chorusWet); tbGainNode.connect(chorusDry);
       const postPedalNode = audioCtx.createGain(); chorusWet.connect(postPedalNode); chorusDry.connect(postPedalNode);
       postPedalNode.connect(ampWet); postPedalNode.connect(ampDry);
-      ampWet.connect(driveGain); driveGain.connect(waveShaper); waveShaper.connect(bassEQ); bassEQ.connect(midEQ); midEQ.connect(trebleEQ); trebleEQ.connect(cabSimHP); cabSimHP.connect(cabSimRes); cabSimRes.connect(cabSimLP); cabSimLP.connect(ampOutNode);
+      
+      ampWet.connect(driveGain); driveGain.connect(waveShaper); waveShaper.connect(bassEQ); bassEQ.connect(midEQ); midEQ.connect(trebleEQ); 
+      trebleEQ.connect(cabSimHP); cabSimHP.connect(cabSimRes); cabSimRes.connect(cabSimNotch); cabSimNotch.connect(cabSimPresence); cabSimPresence.connect(cabSimLP); cabSimLP.connect(ampOutNode);
+      
       ampDry.connect(ampOutNode); ampOutNode.connect(masterVol);
       masterVol.connect(panDry); panDry.connect(finalOutVol);
-      masterVol.connect(delayInputGain); delayInputGain.connect(delay1Node); delay1Node.connect(pan1); pan1.connect(delayWetGain); delayInputGain.connect(delay2Node); delay2Node.connect(pan2); pan2.connect(delayWetGain); delayWetGain.connect(finalOutVol);
+      masterVol.connect(delayInputGain); delayInputGain.connect(delayLP);
+      
+      delayLP.connect(delay1Node); delay1Node.connect(pan1); pan1.connect(delayWetGain); 
+      delayLP.connect(delay2Node); delay2Node.connect(pan2); pan2.connect(delayWetGain); 
+      delayWetGain.connect(finalOutVol);
       finalOutVol.connect(audioCtx.destination);
 
       requestAnimationFrame(processNoiseGate);
@@ -779,25 +793,37 @@
         oopGainNode.gain.value = state.oop ? 1.5 : 0;
         dryGuitarGainNode.gain.value = state.oop ? 0 : 1;
       }
-      if (trebleBooster) {
-        if (state.ampModel === 'fender') {
-          // Emulation type Tube Screamer pour SRV (bosse dans les médiums, gain mesuré)
-          trebleBooster.type = 'peaking';
-          trebleBooster.frequency.value = 720;
-          trebleBooster.Q.value = 1.0;
-          trebleBooster.gain.value = state.booster ? state.boost * 1.5 : 0;
-        } else if (state.ampModel === 'clapton') {
-          // Emulation "Dallas Rangemaster" boostant les hauts-médiums (800-1000Hz) type Woman Tone plus agressif
-          trebleBooster.type = 'peaking';
-          trebleBooster.frequency.value = 800; // Fréquence idéale pour percer le mix blues
-          trebleBooster.Q.value = 1.0;
-          trebleBooster.gain.value = state.booster ? state.boost * 2.5 : 0;
+      if (trebleBooster && tbColor && tbGainNode) {
+        if (!state.booster || state.boost === 0) {
+          // Bypass transparent
+          trebleBooster.frequency.value = 20; 
+          tbColor.gain.value = 0;
+          tbGainNode.gain.value = 1.0;
         } else {
-          // Emulation type Range Master pour Brian May (peaking / passe-bande agressif typique)
-          trebleBooster.type = 'peaking';
-          trebleBooster.frequency.value = 2500;
-          trebleBooster.Q.value = 1.2;
-          trebleBooster.gain.value = state.booster ? state.boost * 3.0 : 0; // Pousse encore plus le préampli
+          if (state.ampModel === 'fender') {
+            // Emulation TS808 (Tube Screamer): Coupe-bas doux, bosse à 720Hz, drive subtil
+            trebleBooster.frequency.value = 150; 
+            tbColor.frequency.value = 720;
+            tbColor.Q.value = 0.8;
+            tbColor.gain.value = state.boost * 1.5;
+            tbGainNode.gain.value = 1 + (state.boost * 0.1);
+          } else if (state.ampModel === 'clapton') {
+            // "Dallas Rangemaster" réglé grave (Woman Tone / Blues): bosse bas/médiums
+            trebleBooster.frequency.value = 250;
+            tbColor.frequency.value = 1200;
+            tbColor.Q.value = 1.0;
+            tbColor.gain.value = state.boost * 2.0;
+            tbGainNode.gain.value = 1 + (state.boost * 0.15);
+          } else {
+            // Vrai Rangemaster typique Brian May (ou Greg Fryer) : 
+            // Coupe violemment les basses avant disto (anti-boue) et booste l'ultra médium
+            trebleBooster.frequency.value = 600; 
+            tbColor.frequency.value = 3200;
+            tbColor.Q.value = 1.4;
+            tbColor.gain.value = state.boost * 2.5; 
+            // Pousse très fort l'étage suivant (gain staging analogique)
+            tbGainNode.gain.value = 1 + (state.boost * 0.25); 
+          }
         }
       }
       
@@ -833,12 +859,29 @@
         trebleEQ.gain.value = (state.treble - 5) * 2;
       }
       
-      // Adaptation de la Cab Sim au modèle
-      if (cabSimLP && cabSimHP && cabSimRes) {
-        cabSimLP.frequency.value = isFender ? 4500 : (isClapton ? 4200 : 5500); // Son très rond, pas aggressif
-        cabSimHP.frequency.value = isFender ? 100 : 90;
-        cabSimRes.frequency.value = isFender ? 2000 : (isClapton ? 1800 : 2500); // Bosse Greenback
-        cabSimRes.gain.value = isFender ? 2 : (isClapton ? 4.5 : 3); // Très prononcé dans les médiums (Woman Tone)
+      // Adaptation de la Cab Sim au modèle (IR-like Filter Bank)
+      if (cabSimLP && cabSimHP && cabSimRes && cabSimNotch && cabSimPresence) {
+        // LP: Coupure naturelle du HP (Roll-off, simule la perte des aigus d'un HP guitare)
+        cabSimLP.frequency.value = isFender ? 5000 : (isClapton ? 4500 : 5800); 
+        cabSimLP.Q.value = isFender ? 1.0 : 0.7;
+        
+        // HP: Résonance grave du caisson ("Cabinet Thump")
+        cabSimHP.frequency.value = isFender ? 85 : 100;
+        
+        // Rés: La signature vocale du HP (Jensen vs Greenback vs Celestion Blue)
+        cabSimRes.frequency.value = isFender ? 1200 : (isClapton ? 1800 : 2500); 
+        cabSimRes.gain.value = isFender ? 2 : (isClapton ? 4 : 5);
+        cabSimRes.Q.value = 1.2;
+        
+        // Notch: Élimination radiale de la bande "Fizz" numérique très agressive
+        cabSimNotch.frequency.value = isFender ? 3500 : (isClapton ? 4000 : 4500);
+        cabSimNotch.gain.value = -12; // Enlevement massif de la bande "nid d'abeilles"
+        cabSimNotch.Q.value = 4.0; // Notch très serré
+
+        // Presence: Restaure l'air et la clarté juste au dessus du notch
+        cabSimPresence.frequency.value = isFender ? 6000 : 5000;
+        cabSimPresence.gain.value = isFender ? 3 : 1;
+        cabSimPresence.Q.value = 1.0;
       }
 
       if (driveGain && waveShaper) {
