@@ -6,7 +6,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="theme-color" content="#121212" />
-  <title>Brian May iPad Rig</title>
+  <title>Brian May iPad Rig Pro - Projet ESIR</title>
   <link rel="manifest" href="./assets/manifest.webmanifest" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,8 +18,8 @@
       --panel-hover: rgba(44, 44, 46, 0.8);
       --panel-border: rgba(255, 255, 255, 0.1);
       --text: #ffffff;
-      --text-muted: rgba(235, 235, 245, 0.6); /* iOS Secondary */
-      --accent: #ff3b30; /* iOS Red */
+      --text-muted: rgba(235, 235, 245, 0.6);
+      --accent: #ff3b30;
       --accent-active: #ff453a;
       --green: #32d74b;
       --blue: #0a84ff;
@@ -42,7 +42,6 @@
     }
 
     body {
-      /* Safe area support for iOS devices + sleek gradient */
       padding: max(env(safe-area-inset-top), 24px) 24px max(env(safe-area-inset-bottom), 32px) 24px;
       background: radial-gradient(120% 120% at 50% 0%, #1c1c1e 0%, var(--bg) 100%);
       background-attachment: fixed;
@@ -84,6 +83,7 @@
     .brand { display: flex; flex-direction: column; gap: 4px; }
     .brand h1 { margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.5px; }
     .brand p { margin: 0; color: var(--text-muted); font-size: 14px; font-weight: 400; }
+    .brand .esir-badge { color: var(--blue); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px;}
 
     .preset-row {
       display: flex;
@@ -357,11 +357,13 @@
     }
 
     .footer-note {
-      color: rgba(255,255,255,0.2);
+      color: rgba(255,255,255,0.4);
       font-size: 13px;
       text-align: center;
       padding: 20px 0;
+      line-height: 1.5;
     }
+    .footer-note strong { color: var(--text); }
 
     @media (max-width: 900px) {
       .grid { grid-template-columns: 1fr; }
@@ -379,8 +381,9 @@
   <div class="app">
     <header class="topbar">
       <div class="brand">
-        <h1>👑 Brian May iPad Rig</h1>
-        <p>Version tactile pensée pour iPad, presets, wah pad et double delay.</p>
+        <span class="esir-badge">Projet ESIR - Spécialité SNR</span>
+        <h1>👑 Brian May iPad Rig Pro</h1>
+        <p>Version tactile avec Fuzz, Phaser, Flanger et Double Delay.</p>
       </div>
       <div class="preset-row">
         <select id="profile-select" aria-label="Choisir un preset"></select>
@@ -389,7 +392,7 @@
       <div class="status" id="status">Prêt à démarrer</div>
     </header>
 
-    <section class="panel install-card" id="install-card">
+    <section class="panel install-card" id="install-card" style="display: none;">
       <h2>Installer sur iPad</h2>
       <div class="tips">Dans Safari, touche <strong>Partager</strong> puis <strong>Ajouter à l'écran d'accueil</strong> pour obtenir un lancement plein écran type app.</div>
     </section>
@@ -406,7 +409,7 @@
         </section>
 
         <section class="panel">
-          <h2>Commutateurs</h2>
+          <h2>Commutateurs (Pedalboard)</h2>
           <div class="switch-grid" id="switch-grid"></div>
         </section>
 
@@ -457,33 +460,40 @@
       </div>
     </div>
 
-    <div class="footer-note">Preset storage en mémoire locale si disponible, sinon session en cours seulement.</div>
+    <div class="footer-note">
+      <strong>Projet développé dans le cadre de l'ESIR (Systèmes Numériques et Réseaux)</strong><br>
+      Preset storage en mémoire locale si disponible, sinon session en cours seulement.
+    </div>
   </div>
 
   <script>
     const factoryPresets = {
-      "Guitar Chalk (Défaut)": { gate: 15, oop: false, booster: true, boost: 8, wah: false, chorus: false, chorusLvl: 0, amp: true, ampModel: 'vox', drive: 8, bass: 5, mid: 5, treble: 8, volume: 5, outVol: 5, delay: false, delayMix: 0, delay1: 0, delay2: 0 },
-      "It's Late (Tapping)": { gate: 16, oop: false, booster: true, boost: 9, wah: false, chorus: false, chorusLvl: 0, amp: true, ampModel: 'vox', drive: 9, bass: 5, mid: 6, treble: 8, volume: 5, outVol: 5, delay: true, delayMix: 6, delay1: 400, delay2: 800 },
-      "Brian May Live (Raw)": { gate: 18, oop: false, booster: true, boost: 9, wah: false, chorus: false, chorusLvl: 0, amp: true, ampModel: 'vox', drive: 9, bass: 5, mid: 6, treble: 9, volume: 5, outVol: 5, delay: false, delayMix: 0, delay1: 0, delay2: 0 },
-      "Bohemian Solo": { gate: 20, oop: true, booster: true, boost: 9, wah: false, chorus: false, chorusLvl: 0, amp: true, ampModel: 'vox', drive: 9, bass: 4, mid: 8, treble: 9, volume: 5, outVol: 5, delay: false, delayMix: 0, delay1: 800, delay2: 1600 },
-      "Brighton Rock": { gate: 15, oop: false, booster: true, boost: 8, wah: false, chorus: false, chorusLvl: 0, amp: true, ampModel: 'vox', drive: 8, bass: 5, mid: 5, treble: 8, volume: 5, outVol: 5, delay: true, delayMix: 7, delay1: 800, delay2: 1600 },
-      "Radio Ga Ga Clean": { gate: 5, oop: true, booster: false, boost: 2, wah: false, chorus: true, chorusLvl: 4, amp: true, ampModel: 'vox', drive: 3, bass: 5, mid: 6, treble: 7, volume: 5, outVol: 5, delay: false, delayMix: 0, delay1: 800, delay2: 1600 },
-      "SRV Texas Blues": { gate: 10, oop: false, booster: true, boost: 6, wah: false, chorus: false, chorusLvl: 0, amp: true, ampModel: 'fender', drive: 6, bass: 6, mid: 8, treble: 6, volume: 5, outVol: 5, delay: false, delayMix: 0, delay1: 0, delay2: 0 },
-      "Clapton Woman Tone": { gate: 12, oop: false, booster: true, boost: 5, wah: false, chorus: false, chorusLvl: 0, amp: true, ampModel: 'clapton', drive: 7, bass: 6, mid: 9, treble: 3, volume: 6, outVol: 5, delay: false, delayMix: 0, delay1: 0, delay2: 0 }
+      "Guitar Chalk (Défaut)": { gate: 15, oop: false, fuzz: false, phaser: false, flanger: false, booster: true, boost: 8, wah: false, chorus: false, chorusLvl: 0, amp: true, ampModel: 'vox', drive: 8, bass: 5, mid: 5, treble: 8, volume: 5, outVol: 5, delay: false, delayMix: 0, delay1: 0, delay2: 0 },
+      "It's Late (Tapping)": { gate: 16, oop: false, fuzz: false, phaser: false, flanger: false, booster: true, boost: 9, wah: false, chorus: false, chorusLvl: 0, amp: true, ampModel: 'vox', drive: 9, bass: 5, mid: 6, treble: 8, volume: 5, outVol: 5, delay: true, delayMix: 6, delay1: 400, delay2: 800 },
+      "Keep Yourself Alive": { gate: 18, oop: false, fuzz: false, phaser: false, flanger: true, booster: true, boost: 9, wah: false, chorus: false, chorusLvl: 0, amp: true, ampModel: 'vox', drive: 9, bass: 5, mid: 6, treble: 9, volume: 5, outVol: 5, delay: false, delayMix: 0, delay1: 0, delay2: 0 },
+      "Bohemian Solo": { gate: 20, oop: true, fuzz: false, phaser: true, flanger: false, booster: true, boost: 9, wah: false, chorus: false, chorusLvl: 0, amp: true, ampModel: 'vox', drive: 9, bass: 4, mid: 8, treble: 9, volume: 5, outVol: 5, delay: false, delayMix: 0, delay1: 800, delay2: 1600 },
+      "Brighton Rock": { gate: 15, oop: false, fuzz: false, phaser: false, flanger: false, booster: true, boost: 8, wah: false, chorus: false, chorusLvl: 0, amp: true, ampModel: 'vox', drive: 8, bass: 5, mid: 5, treble: 8, volume: 5, outVol: 5, delay: true, delayMix: 7, delay1: 800, delay2: 1600 },
+      "Early Queen (Fuzz)": { gate: 18, oop: false, fuzz: true, phaser: false, flanger: false, booster: true, boost: 6, wah: false, chorus: false, chorusLvl: 0, amp: true, ampModel: 'vox', drive: 6, bass: 6, mid: 5, treble: 7, volume: 5, outVol: 5, delay: false, delayMix: 0, delay1: 0, delay2: 0 },
+      "Radio Ga Ga Clean": { gate: 5, oop: true, fuzz: false, phaser: false, flanger: false, booster: false, boost: 2, wah: false, chorus: true, chorusLvl: 4, amp: true, ampModel: 'vox', drive: 3, bass: 5, mid: 6, treble: 7, volume: 5, outVol: 5, delay: false, delayMix: 0, delay1: 800, delay2: 1600 },
+      "SRV Texas Blues": { gate: 10, oop: false, fuzz: false, phaser: false, flanger: false, booster: true, boost: 6, wah: false, chorus: false, chorusLvl: 0, amp: true, ampModel: 'fender', drive: 6, bass: 6, mid: 8, treble: 6, volume: 5, outVol: 5, delay: false, delayMix: 0, delay1: 0, delay2: 0 }
     };
 
     let memoryPresets = {};
     let userPresets = {};
     try {
-      userPresets = JSON.parse(localStorage.getItem('brianMayPresetsV2')) || {};
+      userPresets = JSON.parse(localStorage.getItem('brianMayPresetsV3')) || {};
     } catch (e) {
       userPresets = memoryPresets;
     }
 
     const state = { ...factoryPresets["Guitar Chalk (Défaut)"] };
+    
     const toggles = [
       { key: 'oop', label: 'Micros hors-phase', sub: 'Couleur nasale Brian May' },
+      { key: 'fuzz', label: 'Fuzz Pedal', sub: 'Saturation agressive (Début 70s)' },
       { key: 'booster', label: 'Treble Booster', sub: 'Accent des aigus' },
+      { key: 'phaser', label: 'Phaser (Foxx)', sub: 'Modulation spatiale' },
+      { key: 'flanger', label: 'Flanger Jet', sub: 'Effet type Keep Yourself Alive' },
       { key: 'chorus', label: 'Chorus', sub: 'Largeur et shimmer' },
       { key: 'amp', label: 'Ampli actif', sub: 'Passe dans la section AC30' },
       { key: 'delay', label: 'Delay actif', sub: 'Répétitions stéréo' },
@@ -532,14 +542,20 @@
     let masterVol, finalOutVol;
     let delay1Node, delay2Node, delayLP, panDry, pan1, pan2, delayWetGain;
     let ampWet, ampDry, ampOutNode, delayInputGain;
-    let trebleBooster, tbColor, tbGainNode, outOfPhaseFilter, wahFilter, chorusWet, chorusDry, chorusDelayNode;
+    let trebleBooster, tbColor, tbGainNode, outOfPhaseFilter, wahFilter;
+    let chorusWet, chorusDry, chorusDelayNode;
+    
+    let fuzzWet, fuzzDry, fuzzShaper;
+    let phaserWet, phaserDry, p1, p2, p3, p4;
+    let flangerWet, flangerDry, flangerDelayNode, flangerFeedback;
+    
     let analyser, gateGain, humFilter, gateDataArray, meterDataArray;
     let oopGainNode, dryGuitarGainNode;
     let gateEnvelope = 0;
     let isGateOpen = true;
 
     function safeSavePresets() {
-      try { localStorage.setItem('brianMayPresetsV2', JSON.stringify(userPresets)); } catch (e) { memoryPresets = userPresets; }
+      try { localStorage.setItem('brianMayPresetsV3', JSON.stringify(userPresets)); } catch (e) { memoryPresets = userPresets; }
     }
 
     function renderToggles() {
@@ -596,6 +612,17 @@
       ui.status.textContent = `Preset chargé : ${name}`;
     }
 
+    function makeFuzzCurve(amount) {
+      let k = typeof amount === 'number' ? amount : 50;
+      let n_samples = 44100;
+      let curve = new Float32Array(n_samples);
+      for (let i = 0; i < n_samples; ++i) {
+        let x = i * 2 / n_samples - 1;
+        curve[i] = Math.sign(x) * (1 - Math.exp(-Math.abs(x * k)));
+      }
+      return curve;
+    }
+
     function makeDistortionCurve(amount, type = 'vox') {
       const k = typeof amount === 'number' ? Math.max(1, amount) : 50;
       const nSamples = 44100;
@@ -605,11 +632,9 @@
         let x = i * 2 / nSamples - 1;
         
         if (type === 'fender') {
-          // Fender 6L6: Chaleureux, dynamique, symétrique (tube sag)
           x *= (1 + k * 0.15);
           curve[i] = Math.tanh(x) + 0.15 * Math.sin(Math.PI * x * 0.5);
         } else if (type === 'clapton') {
-          // JTM45/EL34: Punchy, écrêtage asymétrique modéré, drive serré
           x *= (1 + k * 0.25);
           if (x < 0) {
             curve[i] = -1 * (1 - Math.exp(x * 1.5)) * 0.75; 
@@ -617,16 +642,13 @@
             curve[i] = Math.tanh(x * 1.2); 
           }
         } else {
-          // Vox AC30 EL84: Class A, très asymétrique sous effort, beaucoup d'harmoniques paires
           x *= (1 + k * 0.4);
           if (x < 0) {
-            curve[i] = Math.max(-0.65, x); // Coupure cathode très raide (Cold clipping)
+            curve[i] = Math.max(-0.65, x);
           } else {
-            curve[i] = (1.1 * x) / (1 + x * 0.8); // Arrondi très doux des crêtes positives
+            curve[i] = (1.1 * x) / (1 + x * 0.8);
           }
         }
-        
-        // Anti-aliasing soft clip final et normalisation
         curve[i] = Math.tanh(curve[i] * 1.1) * 0.9;
       }
       return curve;
@@ -677,10 +699,34 @@
 
       wahFilter = audioCtx.createBiquadFilter(); wahFilter.type = 'peaking'; wahFilter.frequency.value = 300; wahFilter.Q.value = 5; wahFilter.gain.value = 0;
       
-      // Treble Booster / Overdrive Stage
+      fuzzWet = audioCtx.createGain(); fuzzDry = audioCtx.createGain();
+      fuzzShaper = audioCtx.createWaveShaper();
+      fuzzShaper.curve = makeFuzzCurve(80);
+      fuzzShaper.oversample = '4x';
+
       trebleBooster = audioCtx.createBiquadFilter(); trebleBooster.type = 'highpass'; 
       tbColor = audioCtx.createBiquadFilter(); tbColor.type = 'peaking';
       tbGainNode = audioCtx.createGain();
+
+      phaserWet = audioCtx.createGain(); phaserDry = audioCtx.createGain();
+      p1 = audioCtx.createBiquadFilter(); p1.type = 'allpass'; p1.frequency.value = 1000;
+      p2 = audioCtx.createBiquadFilter(); p2.type = 'allpass'; p2.frequency.value = 1000;
+      p3 = audioCtx.createBiquadFilter(); p3.type = 'allpass'; p3.frequency.value = 1000;
+      p4 = audioCtx.createBiquadFilter(); p4.type = 'allpass'; p4.frequency.value = 1000;
+      const phaserLFO = audioCtx.createOscillator(); phaserLFO.frequency.value = 0.5;
+      const phaserDepth = audioCtx.createGain(); phaserDepth.gain.value = 600;
+      phaserLFO.connect(phaserDepth);
+      phaserDepth.connect(p1.frequency); phaserDepth.connect(p2.frequency);
+      phaserDepth.connect(p3.frequency); phaserDepth.connect(p4.frequency);
+      phaserLFO.start();
+
+      flangerWet = audioCtx.createGain(); flangerDry = audioCtx.createGain();
+      flangerDelayNode = audioCtx.createDelay(); flangerDelayNode.delayTime.value = 0.003;
+      flangerFeedback = audioCtx.createGain(); flangerFeedback.gain.value = 0.7;
+      const flangerLFO = audioCtx.createOscillator(); flangerLFO.frequency.value = 0.25;
+      const flangerDepth = audioCtx.createGain(); flangerDepth.gain.value = 0.002;
+      flangerLFO.connect(flangerDepth); flangerDepth.connect(flangerDelayNode.delayTime); flangerLFO.start();
+      flangerDelayNode.connect(flangerFeedback); flangerFeedback.connect(flangerDelayNode);
 
       chorusDelayNode = audioCtx.createDelay(); chorusDelayNode.delayTime.value = 0.025;
       const chorusLFO = audioCtx.createOscillator(); chorusLFO.frequency.value = 1.5;
@@ -694,34 +740,57 @@
       midEQ = audioCtx.createBiquadFilter(); midEQ.type = 'peaking'; midEQ.Q.value = 0.7; midEQ.frequency.value = 800;
       trebleEQ = audioCtx.createBiquadFilter(); trebleEQ.type = 'highshelf'; trebleEQ.frequency.value = 2500;
       
-      // Simulation très haute qualité de Cabinet (Speaker IR-like Filter Bank)
       cabSimHP = audioCtx.createBiquadFilter(); cabSimHP.type = 'highpass';
-      cabSimRes = audioCtx.createBiquadFilter(); cabSimRes.type = 'peaking'; // Bosse de résonance primordiale
-      cabSimNotch = audioCtx.createBiquadFilter(); cabSimNotch.type = 'peaking'; // Coupe-bas agressif pour le "Fizz"
-      cabSimPresence = audioCtx.createBiquadFilter(); cabSimPresence.type = 'peaking'; // Clarté/Air
-      cabSimLP = audioCtx.createBiquadFilter(); cabSimLP.type = 'lowpass'; // Chute des fréquences hautes (Speaker roll-off)
+      cabSimRes = audioCtx.createBiquadFilter(); cabSimRes.type = 'peaking';
+      cabSimNotch = audioCtx.createBiquadFilter(); cabSimNotch.type = 'peaking';
+      cabSimPresence = audioCtx.createBiquadFilter(); cabSimPresence.type = 'peaking';
+      cabSimLP = audioCtx.createBiquadFilter(); cabSimLP.type = 'lowpass';
       
       masterVol = audioCtx.createGain();
       finalOutVol = audioCtx.createGain();
 
       delayInputGain = audioCtx.createGain();
-      delayLP = audioCtx.createBiquadFilter(); delayLP.type = 'lowpass'; delayLP.frequency.value = 2500; // Son analogique/bande pour le delay
+      delayLP = audioCtx.createBiquadFilter(); delayLP.type = 'lowpass'; delayLP.frequency.value = 2500;
       delayWetGain = audioCtx.createGain();
       delay1Node = audioCtx.createDelay(3.0);
       delay2Node = audioCtx.createDelay(3.0);
       panDry = audioCtx.createStereoPanner(); pan1 = audioCtx.createStereoPanner(); pan2 = audioCtx.createStereoPanner();
       pan1.pan.value = -1; pan2.pan.value = 1;
 
+      // ROUTING COMPLET
       sourceNode.connect(humFilter); humFilter.connect(analyser); analyser.connect(gateGain);
       gateGain.connect(outOfPhaseFilter); outOfPhaseFilter.connect(oopGainNode); gateGain.connect(dryGuitarGainNode);
+      
       const prePedalNode = audioCtx.createGain(); oopGainNode.connect(prePedalNode); dryGuitarGainNode.connect(prePedalNode);
-      prePedalNode.connect(wahFilter); 
       
-      wahFilter.connect(trebleBooster); trebleBooster.connect(tbColor); tbColor.connect(tbGainNode);
+      const postWah = audioCtx.createGain();
+      prePedalNode.connect(wahFilter); wahFilter.connect(postWah);
+
+      postWah.connect(fuzzWet); postWah.connect(fuzzDry);
+      fuzzWet.connect(fuzzShaper);
+      const postFuzz = audioCtx.createGain();
+      fuzzShaper.connect(postFuzz); fuzzDry.connect(postFuzz);
+
+      postFuzz.connect(trebleBooster); trebleBooster.connect(tbColor); tbColor.connect(tbGainNode);
+      const postTB = audioCtx.createGain();
+      tbGainNode.connect(postTB);
+
+      postTB.connect(phaserWet); postTB.connect(phaserDry);
+      phaserWet.connect(p1); p1.connect(p2); p2.connect(p3); p3.connect(p4);
+      const postPhaser = audioCtx.createGain();
+      p4.connect(postPhaser); phaserDry.connect(postPhaser);
+
+      postPhaser.connect(flangerWet); postPhaser.connect(flangerDry);
+      flangerWet.connect(flangerDelayNode);
+      const postFlanger = audioCtx.createGain();
+      flangerDelayNode.connect(postFlanger); flangerDry.connect(postFlanger);
+
+      postFlanger.connect(chorusWet); postFlanger.connect(chorusDry);
+      chorusWet.connect(chorusDelayNode);
+      const postChorus = audioCtx.createGain();
+      chorusDelayNode.connect(postChorus); chorusDry.connect(postChorus);
       
-      tbGainNode.connect(chorusDelayNode); chorusDelayNode.connect(chorusWet); tbGainNode.connect(chorusDry);
-      const postPedalNode = audioCtx.createGain(); chorusWet.connect(postPedalNode); chorusDry.connect(postPedalNode);
-      postPedalNode.connect(ampWet); postPedalNode.connect(ampDry);
+      postChorus.connect(ampWet); postChorus.connect(ampDry);
       
       ampWet.connect(driveGain); driveGain.connect(waveShaper); waveShaper.connect(bassEQ); bassEQ.connect(midEQ); midEQ.connect(trebleEQ); 
       trebleEQ.connect(cabSimHP); cabSimHP.connect(cabSimRes); cabSimRes.connect(cabSimNotch); cabSimNotch.connect(cabSimPresence); cabSimPresence.connect(cabSimLP); cabSimLP.connect(ampOutNode);
@@ -748,23 +817,22 @@
         if (diff > maxVal) maxVal = diff;
       }
       
-      // Enveloppe follower pour lisser la détection (évite le "broutement" ou "chatter")
       if (maxVal > gateEnvelope) {
         gateEnvelope = maxVal;
       } else {
-        gateEnvelope *= 0.96; // Release exponentiel de la détection
+        gateEnvelope *= 0.96;
       }
 
       const threshold = state.gate / 2.0;
       
       if (gateEnvelope > threshold) {
         if (!isGateOpen) {
-          gateGain.gain.setTargetAtTime(1, audioCtx.currentTime, 0.005); // Attaque ultra-rapide
+          gateGain.gain.setTargetAtTime(1, audioCtx.currentTime, 0.005);
           isGateOpen = true;
         }
       } else {
         if (isGateOpen) {
-          gateGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.15); // Release audio doux
+          gateGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.15);
           isGateOpen = false;
         }
       }
@@ -793,38 +861,48 @@
         oopGainNode.gain.value = state.oop ? 1.5 : 0;
         dryGuitarGainNode.gain.value = state.oop ? 0 : 1;
       }
+
+      if (fuzzWet && fuzzDry) {
+        fuzzWet.gain.value = state.fuzz ? 1 : 0;
+        fuzzDry.gain.value = state.fuzz ? 0 : 1;
+      }
+
       if (trebleBooster && tbColor && tbGainNode) {
         if (!state.booster || state.boost === 0) {
-          // Bypass transparent
           trebleBooster.frequency.value = 20; 
           tbColor.gain.value = 0;
           tbGainNode.gain.value = 1.0;
         } else {
           if (state.ampModel === 'fender') {
-            // Emulation TS808 (Tube Screamer): Coupe-bas doux, bosse à 720Hz, drive subtil
             trebleBooster.frequency.value = 150; 
             tbColor.frequency.value = 720;
             tbColor.Q.value = 0.8;
             tbColor.gain.value = state.boost * 1.5;
             tbGainNode.gain.value = 1 + (state.boost * 0.1);
           } else if (state.ampModel === 'clapton') {
-            // "Dallas Rangemaster" réglé grave (Woman Tone / Blues): bosse bas/médiums
             trebleBooster.frequency.value = 250;
             tbColor.frequency.value = 1200;
             tbColor.Q.value = 1.0;
             tbColor.gain.value = state.boost * 2.0;
             tbGainNode.gain.value = 1 + (state.boost * 0.15);
           } else {
-            // Vrai Rangemaster typique Brian May (ou Greg Fryer) : 
-            // Coupe violemment les basses avant disto (anti-boue) et booste l'ultra médium
             trebleBooster.frequency.value = 600; 
             tbColor.frequency.value = 3200;
             tbColor.Q.value = 1.4;
             tbColor.gain.value = state.boost * 2.5; 
-            // Pousse très fort l'étage suivant (gain staging analogique)
             tbGainNode.gain.value = 1 + (state.boost * 0.25); 
           }
         }
+      }
+
+      if (phaserWet && phaserDry) {
+        phaserWet.gain.value = state.phaser ? 0.6 : 0;
+        phaserDry.gain.value = state.phaser ? 0.4 : 1;
+      }
+
+      if (flangerWet && flangerDry) {
+        flangerWet.gain.value = state.flanger ? 0.6 : 0;
+        flangerDry.gain.value = state.flanger ? 0.4 : 1;
       }
       
       if (chorusWet && chorusDry) {
@@ -832,6 +910,7 @@
         chorusWet.gain.value = val;
         chorusDry.gain.value = state.chorus ? (1 - val) : 1;
       }
+
       if (ampWet && ampDry) {
         ampWet.gain.value = state.amp ? 1 : 0;
         ampDry.gain.value = state.amp ? 0 : 1;
@@ -851,41 +930,34 @@
         bassEQ.gain.value = (state.bass - 5) * 2;
       }
       if (midEQ) {
-        midEQ.frequency.value = isFender ? 800 : (isClapton ? 700 : 800); // 700Hz, très présent sur Les Paul/Marshall
+        midEQ.frequency.value = isFender ? 800 : (isClapton ? 700 : 800);
         midEQ.gain.value = (state.mid - 5) * 2;
       }
       if (trebleEQ) {
-        trebleEQ.frequency.value = isFender ? 4000 : (isClapton ? 3200 : 3500); // Filtre doux sur les aigus du Bluesbreaker
+        trebleEQ.frequency.value = isFender ? 4000 : (isClapton ? 3200 : 3500);
         trebleEQ.gain.value = (state.treble - 5) * 2;
       }
       
-      // Adaptation de la Cab Sim au modèle (IR-like Filter Bank)
       if (cabSimLP && cabSimHP && cabSimRes && cabSimNotch && cabSimPresence) {
-        // LP: Coupure naturelle du HP (Roll-off, simule la perte des aigus d'un HP guitare)
         cabSimLP.frequency.value = isFender ? 5000 : (isClapton ? 4500 : 5800); 
         cabSimLP.Q.value = isFender ? 1.0 : 0.7;
         
-        // HP: Résonance grave du caisson ("Cabinet Thump")
         cabSimHP.frequency.value = isFender ? 85 : 100;
         
-        // Rés: La signature vocale du HP (Jensen vs Greenback vs Celestion Blue)
         cabSimRes.frequency.value = isFender ? 1200 : (isClapton ? 1800 : 2500); 
         cabSimRes.gain.value = isFender ? 2 : (isClapton ? 4 : 5);
         cabSimRes.Q.value = 1.2;
         
-        // Notch: Élimination radiale de la bande "Fizz" numérique très agressive
         cabSimNotch.frequency.value = isFender ? 3500 : (isClapton ? 4000 : 4500);
-        cabSimNotch.gain.value = -12; // Enlevement massif de la bande "nid d'abeilles"
-        cabSimNotch.Q.value = 4.0; // Notch très serré
+        cabSimNotch.gain.value = -12;
+        cabSimNotch.Q.value = 4.0;
 
-        // Presence: Restaure l'air et la clarté juste au dessus du notch
         cabSimPresence.frequency.value = isFender ? 6000 : 5000;
         cabSimPresence.gain.value = isFender ? 3 : 1;
         cabSimPresence.Q.value = 1.0;
       }
 
       if (driveGain && waveShaper) {
-        // Gain réduit pour Fender, crunch blues riche pour Clapton (4/20 env), Max pour Vox
         driveGain.gain.value = isFender ? (state.drive * 1.5) / 20 : (isClapton ? (state.drive * 4) / 20 : (state.drive * 10) / 20);
         waveShaper.curve = makeDistortionCurve(state.drive * 10, state.ampModel);
       }
