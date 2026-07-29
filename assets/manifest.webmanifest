@@ -1,10 +1,12 @@
 {
-  "name": "Brian May iPad Rig",
+  "name": "Brian May iPad Rig Pro",
   "short_name": "May Rig",
-  "start_url": "../brian-may-ipad-rig.html",
+  "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#121212",
+  "orientation": "landscape",
+  "background_color": "#030303",
   "theme_color": "#121212",
-  "description": "Rig guitare style Brian May optimisé iPad avec Web Audio.",
+  "description": "Rig guitare tactile inspiré de Brian May, optimisé pour iPad et interface audio.",
   "icons": []
 }
