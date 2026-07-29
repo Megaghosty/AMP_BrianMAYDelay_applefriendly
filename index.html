@@ -452,9 +452,9 @@
         </section>
 
         <section class="panel">
-          <h2>Conseils iPad</h2>
+          <h2>Conseils</h2>
           <div class="tips">
-            Utilise de préférence Safari, un casque ou une interface audio, puis ajoute l'app à l'écran d'accueil. Si le son se coupe après un changement d'app, relance le moteur audio avec le bouton dédié.
+            Utilisez des écouteurs ou une interface audio dédiée. Si le son se coupe après un changement d'application, relancez le moteur audio avec le bouton <strong>Reprendre</strong>.
           </div>
         </section>
       </div>
@@ -558,6 +558,32 @@
     let oopGainNode, dryGuitarGainNode;
     let gateEnvelope = 0;
     let isGateOpen = true;
+
+    // FONCTION DE SÉCURITÉ : Fallback pour la création de panner stéréo (Évite le crash sur certains iPadOS/WebKit)
+    function createSafePanner(ctx, panValue) {
+      try {
+        if (typeof ctx.createStereoPanner === 'function') {
+          const p = ctx.createStereoPanner();
+          p.pan.value = panValue;
+          return p;
+        }
+      } catch(e) {
+        console.warn("createStereoPanner failed, fallback to 3D PannerNode");
+      }
+      const p = ctx.createPanner();
+      p.panningModel = 'equalpower';
+      p.setPosition(panValue, 0, 1 - Math.abs(panValue));
+      return p;
+    }
+
+    // FONCTION DE SÉCURITÉ : Gère correctement la connexion d'effets (oscillateurs vers paramètres)
+    function safeParamConnect(source, param) {
+      try {
+        source.connect(param);
+      } catch(e) {
+        console.warn("AudioParam connection not supported on this browser version.", e);
+      }
+    }
 
     function safeSavePresets() {
       try { localStorage.setItem('brianMayPresetsV4', JSON.stringify(userPresets)); } catch (e) { memoryPresets = userPresets; }
@@ -743,6 +769,9 @@
 
     function buildAudioGraph() {
       inputGain = audioCtx.createGain(); inputGain.gain.value = 1;
+      // FIX DU CRASH: Le compresseur n'était pas instancié !
+      inputCompressor = audioCtx.createDynamicsCompressor();
+      
       humFilter = audioCtx.createBiquadFilter(); humFilter.type = 'highpass'; humFilter.frequency.value = 55; humFilter.Q.value = 0.7;
       analyser = audioCtx.createAnalyser(); analyser.fftSize = 256;
       gateDataArray = new Uint8Array(analyser.frequencyBinCount);
@@ -772,8 +801,10 @@
       const phaserLFO = audioCtx.createOscillator(); phaserLFO.frequency.value = 0.5;
       const phaserDepth = audioCtx.createGain(); phaserDepth.gain.value = 600;
       phaserLFO.connect(phaserDepth);
-      phaserDepth.connect(p1.frequency); phaserDepth.connect(p2.frequency);
-      phaserDepth.connect(p3.frequency); phaserDepth.connect(p4.frequency);
+      safeParamConnect(phaserDepth, p1.frequency);
+      safeParamConnect(phaserDepth, p2.frequency);
+      safeParamConnect(phaserDepth, p3.frequency);
+      safeParamConnect(phaserDepth, p4.frequency);
       phaserLFO.start();
 
       flangerWet = audioCtx.createGain(); flangerDry = audioCtx.createGain();
@@ -781,13 +812,17 @@
       flangerFeedback = audioCtx.createGain(); flangerFeedback.gain.value = 0.7;
       const flangerLFO = audioCtx.createOscillator(); flangerLFO.frequency.value = 0.25;
       const flangerDepth = audioCtx.createGain(); flangerDepth.gain.value = 0.002;
-      flangerLFO.connect(flangerDepth); flangerDepth.connect(flangerDelayNode.delayTime); flangerLFO.start();
+      flangerLFO.connect(flangerDepth); 
+      safeParamConnect(flangerDepth, flangerDelayNode.delayTime); 
+      flangerLFO.start();
       flangerDelayNode.connect(flangerFeedback); flangerFeedback.connect(flangerDelayNode);
 
       chorusDelayNode = audioCtx.createDelay(); chorusDelayNode.delayTime.value = 0.025;
       const chorusLFO = audioCtx.createOscillator(); chorusLFO.frequency.value = 1.5;
       const chorusDepth = audioCtx.createGain(); chorusDepth.gain.value = 0.005;
-      chorusLFO.connect(chorusDepth); chorusDepth.connect(chorusDelayNode.delayTime); chorusLFO.start();
+      chorusLFO.connect(chorusDepth); 
+      safeParamConnect(chorusDepth, chorusDelayNode.delayTime); 
+      chorusLFO.start();
       chorusWet = audioCtx.createGain(); chorusDry = audioCtx.createGain();
 
       ampWet = audioCtx.createGain(); ampDry = audioCtx.createGain(); ampOutNode = audioCtx.createGain();
@@ -818,8 +853,11 @@
       delayFeedback1 = audioCtx.createGain(); delayFeedback2 = audioCtx.createGain();
       delay1Node = audioCtx.createDelay(3.0);
       delay2Node = audioCtx.createDelay(3.0);
-      panDry = audioCtx.createStereoPanner(); pan1 = audioCtx.createStereoPanner(); pan2 = audioCtx.createStereoPanner();
-      pan1.pan.value = -1; pan2.pan.value = 1;
+      
+      // FIX DU CRASH iPad : Sécurisation du PannerNode
+      panDry = createSafePanner(audioCtx, 0); 
+      pan1 = createSafePanner(audioCtx, -1); 
+      pan2 = createSafePanner(audioCtx, 1);
 
       // ROUTING COMPLET
       sourceNode.connect(inputGain); inputGain.connect(inputCompressor); inputCompressor.connect(humFilter); humFilter.connect(analyser); analyser.connect(gateGain);
