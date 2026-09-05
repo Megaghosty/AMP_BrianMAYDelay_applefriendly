@@ -383,7 +383,7 @@
       <div class="brand">
         <span class="esir-badge">Projet ESIR - Spécialité SNR</span>
         <h1>👑 Brian May iPad Rig Pro</h1>
-        <p>Version tactile avec Fuzz, Phaser, Flanger et Double Delay.</p>
+        <p>Version tactile avec Tube Screamer, Fuzz, Phaser, Flanger et Delay.</p>
       </div>
       <div class="preset-row">
         <select id="profile-select" aria-label="Choisir un preset"></select>
@@ -401,7 +401,7 @@
       <div class="stack">
         <section class="panel">
           <h2>Démarrage</h2>
-          <p class="section-note">Branche idéalement une interface audio et un casque. Le moteur utilise maintenant un préampli, un gate progressif, une simulation d'ampli plus naturelle, une cabine affinée et un limiteur de sortie.</p>
+          <p class="section-note">Autorise l'accès au microphone. En cas d'erreur de son, clique sur <strong>Couper / Reprendre audio</strong>.</p>
           <div class="preset-row">
             <button class="btn" id="start-btn">⚡ Activer micro + audio</button>
             <button class="btn ghost" id="suspend-btn" disabled>⏸ Couper / Reprendre audio</button>
@@ -454,7 +454,8 @@
         <section class="panel">
           <h2>Conseils</h2>
           <div class="tips">
-            Utilisez des écouteurs ou une interface audio dédiée. Si le son se coupe après un changement d'application, relancez le moteur audio avec le bouton <strong>Reprendre</strong>.
+            Si le son "clipping" ou siffle (larsen), baisse le paramètre "Gain TS808" ou "Boost". 
+            Utilisez des écouteurs de préférence pour éviter que le micro ne repique le son des haut-parleurs.
           </div>
         </section>
       </div>
@@ -468,20 +469,20 @@
 
   <script>
     const factoryPresets = {
-      "Guitar Chalk (Défaut)": { gate: 15, input: 5, compression: 3, presence: 6, room: 2, delayFeedback: 2, oop: false, fuzz: false, phaser: false, flanger: false, booster: true, boost: 8, wah: false, chorus: false, chorusLvl: 0, amp: true, ampModel: 'vox', drive: 8, bass: 5, mid: 5, treble: 8, volume: 5, outVol: 5, delay: false, delayMix: 0, delay1: 0, delay2: 0 },
-      "It's Late (Tapping)": { gate: 16, input: 5, compression: 3, presence: 7, room: 2, delayFeedback: 3, oop: false, fuzz: false, phaser: false, flanger: false, booster: true, boost: 9, wah: false, chorus: false, chorusLvl: 0, amp: true, ampModel: 'vox', drive: 9, bass: 5, mid: 6, treble: 8, volume: 5, outVol: 5, delay: true, delayMix: 6, delay1: 400, delay2: 800 },
-      "Keep Yourself Alive": { gate: 18, input: 5, compression: 4, presence: 7, room: 2, delayFeedback: 2, oop: false, fuzz: false, phaser: false, flanger: true, booster: true, boost: 9, wah: false, chorus: false, chorusLvl: 0, amp: true, ampModel: 'vox', drive: 9, bass: 5, mid: 6, treble: 9, volume: 5, outVol: 5, delay: false, delayMix: 0, delay1: 0, delay2: 0 },
-      "Bohemian Solo": { gate: 20, input: 5, compression: 4, presence: 8, room: 2, delayFeedback: 2, oop: true, fuzz: false, phaser: true, flanger: false, booster: true, boost: 9, wah: false, chorus: false, chorusLvl: 0, amp: true, ampModel: 'vox', drive: 9, bass: 4, mid: 8, treble: 9, volume: 5, outVol: 5, delay: false, delayMix: 0, delay1: 800, delay2: 1600 },
-      "Brighton Rock": { gate: 15, input: 5, compression: 3, presence: 6, room: 2, delayFeedback: 2, oop: false, fuzz: false, phaser: false, flanger: false, booster: true, boost: 8, wah: false, chorus: false, chorusLvl: 0, amp: true, ampModel: 'vox', drive: 8, bass: 5, mid: 5, treble: 8, volume: 5, outVol: 5, delay: true, delayMix: 7, delay1: 800, delay2: 1600 },
-      "Early Queen (Fuzz)": { gate: 18, input: 5, compression: 5, presence: 7, room: 2, delayFeedback: 2, oop: false, fuzz: true, phaser: false, flanger: false, booster: true, boost: 6, wah: false, chorus: false, chorusLvl: 0, amp: true, ampModel: 'vox', drive: 6, bass: 6, mid: 5, treble: 7, volume: 5, outVol: 5, delay: false, delayMix: 0, delay1: 0, delay2: 0 },
-      "Radio Ga Ga Clean": { gate: 5, input: 5, compression: 2, presence: 5, room: 3, delayFeedback: 2, oop: true, fuzz: false, phaser: false, flanger: false, booster: false, boost: 2, wah: false, chorus: true, chorusLvl: 4, amp: true, ampModel: 'vox', drive: 3, bass: 5, mid: 6, treble: 7, volume: 5, outVol: 5, delay: false, delayMix: 0, delay1: 800, delay2: 1600 },
-      "SRV Texas Blues": { gate: 10, input: 5, compression: 4, presence: 5, room: 2, delayFeedback: 2, oop: false, fuzz: false, phaser: false, flanger: false, booster: true, boost: 6, wah: false, chorus: false, chorusLvl: 0, amp: true, ampModel: 'fender', drive: 6, bass: 6, mid: 8, treble: 6, volume: 5, outVol: 5, delay: false, delayMix: 0, delay1: 0, delay2: 0 }
+      "Guitar Chalk (Défaut)": { gate: 15, input: 5, compression: 3, presence: 6, room: 2, delayFeedback: 2, oop: false, fuzz: false, ts808: false, phaser: false, flanger: false, booster: true, boost: 8, tsDrive: 5, wah: false, chorus: false, chorusLvl: 0, amp: true, ampModel: 'vox', drive: 8, bass: 5, mid: 5, treble: 8, volume: 5, outVol: 5, delay: false, delayMix: 0, delay1: 0, delay2: 0 },
+      "Pure Clean Studio (DI)": { gate: 8, input: 5, compression: 1.5, presence: 5, room: 3, delayFeedback: 2, oop: false, fuzz: false, ts808: false, phaser: false, flanger: false, booster: false, boost: 0, tsDrive: 0, wah: false, chorus: false, chorusLvl: 0, amp: false, ampModel: 'vox', drive: 2, bass: 5, mid: 5, treble: 5, volume: 8, outVol: 5, delay: false, delayMix: 0, delay1: 0, delay2: 0 },
+      "It's Late (Tapping)": { gate: 16, input: 5, compression: 3, presence: 7, room: 2, delayFeedback: 3, oop: false, fuzz: false, ts808: false, phaser: false, flanger: false, booster: true, boost: 9, tsDrive: 5, wah: false, chorus: false, chorusLvl: 0, amp: true, ampModel: 'vox', drive: 9, bass: 5, mid: 6, treble: 8, volume: 5, outVol: 5, delay: true, delayMix: 6, delay1: 400, delay2: 800 },
+      "Keep Yourself Alive": { gate: 18, input: 5, compression: 4, presence: 7, room: 2, delayFeedback: 2, oop: false, fuzz: false, ts808: false, phaser: false, flanger: true, booster: true, boost: 9, tsDrive: 5, wah: false, chorus: false, chorusLvl: 0, amp: true, ampModel: 'vox', drive: 9, bass: 5, mid: 6, treble: 9, volume: 5, outVol: 5, delay: false, delayMix: 0, delay1: 0, delay2: 0 },
+      "Bohemian Solo": { gate: 20, input: 5, compression: 4, presence: 8, room: 2, delayFeedback: 2, oop: true, fuzz: false, ts808: false, phaser: true, flanger: false, booster: true, boost: 9, tsDrive: 5, wah: false, chorus: false, chorusLvl: 0, amp: true, ampModel: 'vox', drive: 9, bass: 4, mid: 8, treble: 9, volume: 5, outVol: 5, delay: false, delayMix: 0, delay1: 800, delay2: 1600 },
+      "Early Queen (Fuzz)": { gate: 18, input: 5, compression: 5, presence: 7, room: 2, delayFeedback: 2, oop: false, fuzz: true, ts808: false, phaser: false, flanger: false, booster: true, boost: 6, tsDrive: 5, wah: false, chorus: false, chorusLvl: 0, amp: true, ampModel: 'vox', drive: 6, bass: 6, mid: 5, treble: 7, volume: 5, outVol: 5, delay: false, delayMix: 0, delay1: 0, delay2: 0 },
+      "Radio Ga Ga Clean": { gate: 5, input: 5, compression: 2, presence: 5, room: 3, delayFeedback: 2, oop: true, fuzz: false, ts808: false, phaser: false, flanger: false, booster: false, boost: 2, tsDrive: 0, wah: false, chorus: true, chorusLvl: 4, amp: true, ampModel: 'vox', drive: 3, bass: 5, mid: 6, treble: 7, volume: 5, outVol: 5, delay: false, delayMix: 0, delay1: 800, delay2: 1600 },
+      "SRV Texas Blues": { gate: 10, input: 5, compression: 4, presence: 5, room: 2, delayFeedback: 2, oop: false, fuzz: false, ts808: true, phaser: false, flanger: false, booster: false, boost: 0, tsDrive: 8, wah: false, chorus: false, chorusLvl: 0, amp: true, ampModel: 'fender', drive: 5, bass: 6, mid: 8, treble: 6, volume: 5, outVol: 5, delay: false, delayMix: 0, delay1: 0, delay2: 0 }
     };
 
     let memoryPresets = {};
     let userPresets = {};
     try {
-      userPresets = JSON.parse(localStorage.getItem('brianMayPresetsV4')) || {};
+      userPresets = JSON.parse(localStorage.getItem('brianMayPresetsV5')) || {};
     } catch (e) {
       userPresets = memoryPresets;
     }
@@ -492,10 +493,11 @@
       { key: 'oop', label: 'Micros hors-phase', sub: 'Couleur nasale Brian May' },
       { key: 'fuzz', label: 'Fuzz Pedal', sub: 'Saturation agressive (Début 70s)' },
       { key: 'booster', label: 'Treble Booster', sub: 'Accent des aigus' },
+      { key: 'ts808', label: 'Tube Screamer', sub: 'Overdrive crémeux (Mid-boost)' },
       { key: 'phaser', label: 'Phaser (Foxx)', sub: 'Modulation spatiale' },
       { key: 'flanger', label: 'Flanger Jet', sub: 'Effet type Keep Yourself Alive' },
       { key: 'chorus', label: 'Chorus', sub: 'Largeur et shimmer' },
-      { key: 'amp', label: 'Ampli actif', sub: 'Passe dans la section AC30' },
+      { key: 'amp', label: 'Ampli actif', sub: 'Passe dans la section d\'ampli' },
       { key: 'delay', label: 'Delay actif', sub: 'Répétitions stéréo' },
       { key: 'wah', label: 'Wah tactile', sub: 'Piloté par le pad' }
     ];
@@ -504,7 +506,8 @@
       { key: 'input', label: 'Niveau d’entrée', min: 0, max: 10, step: 0.5, suffix: '' },
       { key: 'compression', label: 'Compression', min: 0, max: 10, step: 1, suffix: '' },
       { key: 'gate', label: 'Noise Gate', min: 0, max: 100, step: 1, suffix: '%' },
-      { key: 'boost', label: 'Boost', min: 0, max: 10, step: 1, suffix: '' },
+      { key: 'boost', label: 'Gain Treble Boost', min: 0, max: 10, step: 1, suffix: '' },
+      { key: 'tsDrive', label: 'Gain Tube Screamer', min: 0, max: 10, step: 1, suffix: '' },
       { key: 'chorusLvl', label: 'Mix Chorus', min: 0, max: 10, step: 1, suffix: '' },
       { key: 'outVol', label: 'Volume Général', min: 0, max: 10, step: 1, suffix: '' }
     ];
@@ -551,6 +554,10 @@
     let chorusWet, chorusDry, chorusDelayNode;
     
     let fuzzWet, fuzzDry, fuzzShaper;
+    
+    // Nodes Tube Screamer
+    let tsWet, tsDry, tsHPF, tsShaper, tsTone, tsPreGain, tsPostGain;
+    
     let phaserWet, phaserDry, p1, p2, p3, p4;
     let flangerWet, flangerDry, flangerDelayNode, flangerFeedback;
     
@@ -559,7 +566,6 @@
     let gateEnvelope = 0;
     let isGateOpen = true;
 
-    // FONCTION DE SÉCURITÉ : Fallback pour la création de panner stéréo (Évite le crash sur certains iPadOS/WebKit)
     function createSafePanner(ctx, panValue) {
       try {
         if (typeof ctx.createStereoPanner === 'function') {
@@ -576,7 +582,6 @@
       return p;
     }
 
-    // FONCTION DE SÉCURITÉ : Gère correctement la connexion d'effets (oscillateurs vers paramètres)
     function safeParamConnect(source, param) {
       try {
         source.connect(param);
@@ -586,7 +591,7 @@
     }
 
     function safeSavePresets() {
-      try { localStorage.setItem('brianMayPresetsV4', JSON.stringify(userPresets)); } catch (e) { memoryPresets = userPresets; }
+      try { localStorage.setItem('brianMayPresetsV5', JSON.stringify(userPresets)); } catch (e) { memoryPresets = userPresets; }
     }
 
     function renderToggles() {
@@ -635,14 +640,6 @@
       syncAudioFromState();
     }
 
-    function applyPreset(source, name) {
-      const preset = source === 'factory' ? factoryPresets[name] : userPresets[name];
-      if (!preset) return;
-      Object.assign(state, preset);
-      applyStateToUI();
-      ui.status.textContent = `Preset chargé : ${name}`;
-    }
-
     function makeFuzzCurve(amount) {
       let k = typeof amount === 'number' ? amount : 50;
       let n_samples = 44100;
@@ -650,6 +647,18 @@
       for (let i = 0; i < n_samples; ++i) {
         let x = i * 2 / n_samples - 1;
         curve[i] = Math.sign(x) * (1 - Math.exp(-Math.abs(x * k)));
+      }
+      return curve;
+    }
+
+    // Courbe d'écrêtage doux typique du Tube Screamer
+    function makeScreamerCurve(amount) {
+      let k = typeof amount === 'number' ? amount : 50;
+      let n_samples = 44100;
+      let curve = new Float32Array(n_samples);
+      for (let i = 0; i < n_samples; ++i) {
+        let x = i * 2 / n_samples - 1;
+        curve[i] = Math.tanh(x * (1 + k * 0.15));
       }
       return curve;
     }
@@ -769,7 +778,6 @@
 
     function buildAudioGraph() {
       inputGain = audioCtx.createGain(); inputGain.gain.value = 1;
-      // FIX DU CRASH: Le compresseur n'était pas instancié !
       inputCompressor = audioCtx.createDynamicsCompressor();
       
       humFilter = audioCtx.createBiquadFilter(); humFilter.type = 'highpass'; humFilter.frequency.value = 55; humFilter.Q.value = 0.7;
@@ -792,6 +800,14 @@
       trebleBooster = audioCtx.createBiquadFilter(); trebleBooster.type = 'highpass'; 
       tbColor = audioCtx.createBiquadFilter(); tbColor.type = 'peaking';
       tbGainNode = audioCtx.createGain();
+
+      // Tube Screamer
+      tsWet = audioCtx.createGain(); tsDry = audioCtx.createGain();
+      tsPreGain = audioCtx.createGain();
+      tsHPF = audioCtx.createBiquadFilter(); tsHPF.type = 'highpass'; tsHPF.frequency.value = 720;
+      tsShaper = audioCtx.createWaveShaper(); tsShaper.oversample = '4x';
+      tsTone = audioCtx.createBiquadFilter(); tsTone.type = 'lowpass'; tsTone.frequency.value = 2500;
+      tsPostGain = audioCtx.createGain();
 
       phaserWet = audioCtx.createGain(); phaserDry = audioCtx.createGain();
       p1 = audioCtx.createBiquadFilter(); p1.type = 'allpass'; p1.frequency.value = 1000;
@@ -854,12 +870,11 @@
       delay1Node = audioCtx.createDelay(3.0);
       delay2Node = audioCtx.createDelay(3.0);
       
-      // FIX DU CRASH iPad : Sécurisation du PannerNode
       panDry = createSafePanner(audioCtx, 0); 
       pan1 = createSafePanner(audioCtx, -1); 
       pan2 = createSafePanner(audioCtx, 1);
 
-      // ROUTING COMPLET
+      // ROUTING COMPLET : On insère le Tube Screamer juste après le Treble Booster
       sourceNode.connect(inputGain); inputGain.connect(inputCompressor); inputCompressor.connect(humFilter); humFilter.connect(analyser); analyser.connect(gateGain);
       gateGain.connect(outOfPhaseFilter); outOfPhaseFilter.connect(oopGainNode); gateGain.connect(dryGuitarGainNode);
       
@@ -877,7 +892,13 @@
       const postTB = audioCtx.createGain();
       tbGainNode.connect(postTB);
 
-      postTB.connect(phaserWet); postTB.connect(phaserDry);
+      // Insertion du Tube Screamer
+      postTB.connect(tsWet); postTB.connect(tsDry);
+      tsWet.connect(tsPreGain); tsPreGain.connect(tsHPF); tsHPF.connect(tsShaper); tsShaper.connect(tsTone); tsTone.connect(tsPostGain);
+      const postTS = audioCtx.createGain();
+      tsPostGain.connect(postTS); tsDry.connect(postTS);
+
+      postTS.connect(phaserWet); postTS.connect(phaserDry);
       phaserWet.connect(p1); p1.connect(p2); p2.connect(p3); p3.connect(p4);
       const postPhaser = audioCtx.createGain();
       p4.connect(postPhaser); phaserDry.connect(postPhaser);
@@ -996,6 +1017,15 @@
             tbGainNode.gain.value = 1 + (state.boost * 0.25); 
           }
         }
+      }
+
+      // TUBE SCREAMER
+      if (tsWet && tsDry && tsShaper && tsPreGain && tsPostGain) {
+        tsWet.gain.value = state.ts808 ? 1 : 0;
+        tsDry.gain.value = state.ts808 ? 0 : 1;
+        tsPreGain.gain.value = 1 + (state.tsDrive * 0.8); // On sature avant
+        tsShaper.curve = makeScreamerCurve(state.tsDrive * 10);
+        tsPostGain.gain.value = 1 / (1 + (state.tsDrive * 0.3)); // On compense le volume en sortie
       }
 
       if (phaserWet && phaserDry) {
