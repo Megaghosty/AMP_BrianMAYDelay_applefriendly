@@ -469,7 +469,7 @@
 
   <script>
     const factoryPresets = {
-      "Guitar Chalk (Défaut)": { gate: 15, input: 5, compression: 3, presence: 6, room: 2, delayFeedback: 2, oop: false, fuzz: false, ts808: false, phaser: false, flanger: false, booster: true, boost: 8, tsDrive: 5, wah: false, chorus: false, chorusLvl: 0, amp: true, ampModel: 'vox', drive: 8, bass: 5, mid: 5, treble: 8, volume: 5, outVol: 5, delay: false, delayMix: 0, delay1: 0, delay2: 0 },
+      "Guitar Chalk (Défaut)": { gate: 8, input: 5, compression: 1, presence: 5, room: 1, delayFeedback: 2, oop: false, fuzz: false, ts808: false, phaser: false, flanger: false, booster: false, boost: 0, tsDrive: 0, wah: false, chorus: false, chorusLvl: 0, amp: false, ampModel: 'vox', drive: 0, bass: 5, mid: 5, treble: 5, volume: 8, outVol: 5, delay: false, delayMix: 0, delay1: 0, delay2: 0 },
       "Pure Clean Studio (DI)": { gate: 8, input: 5, compression: 1.5, presence: 5, room: 3, delayFeedback: 2, oop: false, fuzz: false, ts808: false, phaser: false, flanger: false, booster: false, boost: 0, tsDrive: 0, wah: false, chorus: false, chorusLvl: 0, amp: false, ampModel: 'vox', drive: 2, bass: 5, mid: 5, treble: 5, volume: 8, outVol: 5, delay: false, delayMix: 0, delay1: 0, delay2: 0 },
       "It's Late (Tapping)": { gate: 16, input: 5, compression: 3, presence: 7, room: 2, delayFeedback: 3, oop: false, fuzz: false, ts808: false, phaser: false, flanger: false, booster: true, boost: 9, tsDrive: 5, wah: false, chorus: false, chorusLvl: 0, amp: true, ampModel: 'vox', drive: 9, bass: 5, mid: 6, treble: 8, volume: 5, outVol: 5, delay: true, delayMix: 6, delay1: 400, delay2: 800 },
       "Keep Yourself Alive": { gate: 18, input: 5, compression: 4, presence: 7, room: 2, delayFeedback: 2, oop: false, fuzz: false, ts808: false, phaser: false, flanger: true, booster: true, boost: 9, tsDrive: 5, wah: false, chorus: false, chorusLvl: 0, amp: true, ampModel: 'vox', drive: 9, bass: 5, mid: 6, treble: 9, volume: 5, outVol: 5, delay: false, delayMix: 0, delay1: 0, delay2: 0 },
@@ -664,9 +664,15 @@
     }
 
     function makeDistortionCurve(amount, type = 'vox') {
-      const k = typeof amount === 'number' ? Math.max(1, amount) : 50;
       const nSamples = 44100;
       const curve = new Float32Array(nSamples);
+
+      if (typeof amount !== 'number' || amount <= 0) {
+        for (let i = 0; i < nSamples; i++) curve[i] = i * 2 / nSamples - 1;
+        return curve;
+      }
+
+      const k = amount;
       
       for (let i = 0; i < nSamples; ++i) {
         let x = i * 2 / nSamples - 1;
@@ -1105,7 +1111,9 @@
       }
 
       if (driveGain && waveShaper) {
-        driveGain.gain.value = isFender ? 0.65 + state.drive * 0.07 : (isClapton ? 0.7 + state.drive * 0.11 : 0.75 + state.drive * 0.14);
+        driveGain.gain.value = state.drive <= 0
+          ? 1
+          : (isFender ? 0.65 + state.drive * 0.07 : (isClapton ? 0.7 + state.drive * 0.11 : 0.75 + state.drive * 0.14));
         waveShaper.curve = makeDistortionCurve(state.drive * 10, state.ampModel);
       }
       
